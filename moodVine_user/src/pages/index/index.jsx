@@ -1,5 +1,7 @@
 import { View, Text } from '@tarojs/components'
 import { useLoad } from '@tarojs/taro'
+import Taro from '@tarojs/taro';
+import 'normalize.css'
 import './index.scss'
 
 export default function Index() {
@@ -8,9 +10,15 @@ export default function Index() {
     console.log('Page loaded.')
   })
 
+  const hhh = () => {
+    Taro.navigateTo({
+      url: '/pages/score/score',
+    });
+  };
+
   return (
     <View className='index'>
-      <Text>Hello world!</Text>
+      <Text onClick={hhh}>Hello world!</Text>
     </View>
   )
 }
