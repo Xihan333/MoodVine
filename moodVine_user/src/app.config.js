@@ -2,7 +2,7 @@ export default defineAppConfig({
   // 在这里进行路由配置
   pages: [
     'pages/index/index',
-    'pages/score/score'
+    'pages/test/test'
   ],
   window: {
     backgroundTextStyle: 'light',
