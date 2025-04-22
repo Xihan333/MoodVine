@@ -1,5 +1,8 @@
 import { View, Text } from '@tarojs/components'
+import { Input, Button, List, Cell, Tag, Empty, Popup } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
+import Taro from '@tarojs/taro';
+import 'normalize.css'
 import './index.scss'
 
 export default function Index() {
@@ -8,9 +11,21 @@ export default function Index() {
     console.log('Page loaded.')
   })
 
+  const hhh = () => {
+    // Taro.navigateTo({
+    //   url: '/pages/score/score',
+    // });
+    console.log("sssss")
+  };
+
+  const handleSearch = () => {
+    console.log("被戳辣啊啊啊啊")
+  }
+
   return (
     <View className='index'>
-      <Text>Hello world!</Text>
+      <Button color="primary">主要按钮</Button>
+      <Text onClick={hhh}>Hello world!</Text>
     </View>
   )
 }
