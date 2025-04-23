@@ -13,8 +13,9 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@blip_bp.route('/analyze-image', methods=['POST'])
-def analyze_image():
+
+@blip_bp.route('/blip-analyze-image', methods=['POST'])
+def blip_analyze_image():
     """处理图片上传和分析请求
     支持传递图片URL（application/json）
     """
