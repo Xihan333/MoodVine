@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+config.py
+__pycache__
+models
