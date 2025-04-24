@@ -26,7 +26,7 @@ def load_model():
 def generate_caption(image_path, processor, model, device):
     """生成图像描述"""
     try:
-        text = "a detailed description of the scene:"
+        text = "a photo of"
         # 加载图像并预处理
         image = Image.open(image_path).convert("RGB")
         inputs = processor(image, text, return_tensors="pt").to(device)

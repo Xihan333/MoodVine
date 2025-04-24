@@ -14,12 +14,12 @@ def load_model():
     # 加载处理器和模型
     processor = Blip2Processor.from_pretrained(MODEL_PATH)
     print("✅ 加载模型成功")
-    model = Blip2ForConditionalGeneration.from_pretrained(MODEL_PATH).to(device)
-
-    # 半精度优化（减少显存占用）
-    if device == "cuda":
-        model = model.half()
-
+    model = Blip2ForConditionalGeneration.from_pretrained(
+        MODEL_PATH,
+        load_in_8bit=True,
+        device_map={"": device},
+        torch_dtype=torch.float16
+    )
     return processor, model, device
 
 
@@ -29,16 +29,18 @@ def generate_caption(image_path, processor, model, device):
         text = "a detailed description of the scene:"
         # 加载图像并预处理
         image = Image.open(image_path).convert("RGB")
-        inputs = processor(image, text, return_tensors="pt").to(device)
-
-        # 半精度输入（需与模型精度匹配）
-        if device == "cuda":
-            inputs = inputs.to(torch.float16)
+        inputs = processor(image, text, return_tensors="pt").to(device, torch.float16)
 
         # 生成描述
         with torch.no_grad():
             outputs = model.generate(
-                **inputs
+                **inputs,
+                max_length=150,
+                num_beams=5,
+                min_new_tokens=20,
+                top_p=0.9,
+                repetition_penalty=1.5,
+                length_penalty=1.0,
             )
 
             return processor.decode(outputs[0], skip_special_tokens=True)
