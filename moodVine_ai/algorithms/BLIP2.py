@@ -5,45 +5,51 @@ import torch
 
 MODEL_PATH = "/models_shared/blip2-opt-2.7b"
 
+
 class BLIP2Service:
-    class BLIP2Service:
-        def __init__(self):
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
-            self.processor = Blip2Processor.from_pretrained(MODEL_PATH)
-            self.model = Blip2ForConditionalGeneration.from_pretrained(MODEL_PATH).to(self.device)
+    def __init__(self):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.processor = Blip2Processor.from_pretrained(MODEL_PATH)
+        self.model = Blip2ForConditionalGeneration.from_pretrained(
+            MODEL_PATH,
+            device_map={"": self.device},
+            torch_dtype=torch.float16
+        )
 
-            if self.device == "cuda":
-                self.model = self.model.half()
+    def blip2_analyze_image(self, image_url, prompt):
+        print(f"✅ 正在使用设备: {self.device.upper()}")
+        """分析图片并生成描述
+        Args:
+            image_path: 图片路径（URL）
+            prompt: 文本生成提示词
+        Returns:
+            str: 生成的描述文本
+        """
+        try:
+            # 支持图片URL
+            response = requests.get(image_url, stream=True, timeout=10)
+            response.raise_for_status()
+            image = Image.open(response.raw).convert('RGB')
 
-        def analyze_image(self, image_url):
-            """分析图片并生成描述
-            Args:
-                image_path: 图片路径（URL）
-            Returns:
-                str: 生成的描述文本
-            """
-            prompt = "a detailed description of the scene:"
-            try:
-                # 支持图片URL
-                response = requests.get(image_url, stream=True, timeout=10)
-                response.raise_for_status()
-                image = Image.open(response.raw).convert('RGB')
+            # 条件生成或无条件生成
+            inputs = self.processor(image, text=prompt, return_tensors="pt").to(self.device, torch.float16)
 
-                # 条件生成或无条件生成
-                inputs = self.processor(image, text=prompt, return_tensors="pt").to(self.device)
+            # 生成描述
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    **inputs,
+                    max_length=150,
+                    num_beams=5,
+                    min_new_tokens=20,
+                    repetition_penalty=1.5,
+                    length_penalty=1.0,
+                )
 
-                if self.device == "cuda":
-                    inputs = inputs.to(torch.float16)
+            return self.processor.decode(outputs[0], skip_special_tokens=True)
 
-                with torch.no_grad():
-                    outputs = self.model.generate(
-                        **inputs
-                    )
+        except Exception as e:
+            raise RuntimeError(f"BLIP2 analysis failed: {str(e)}")
 
-                return self.processor.decode(outputs[0], skip_special_tokens=True)
 
-            except Exception as e:
-                raise RuntimeError(f"BLIP analysis failed: {str(e)}")
-
-    # 单例模式（全局共享实例）
-    blip2_service = BLIP2Service()
+# 单例模式（全局共享实例）
+blip2_service = BLIP2Service()

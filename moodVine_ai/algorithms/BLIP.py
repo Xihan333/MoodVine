@@ -14,7 +14,7 @@ class BLIPService:
         if self.device == "cuda":
             self.model = self.model.half()
 
-    def analyze_image(self, image_url):
+    def blip_analyze_image(self, image_url):
         """分析图片并生成描述
         Args:
             image_path: 图片路径（URL）

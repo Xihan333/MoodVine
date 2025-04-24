@@ -16,6 +16,14 @@ services:
       - FLASK_DEBUG=1
       - FLASK_ENV=development
       - HF_HOME=/models_shared  # 设置缓存目录
+    # 添加 GPU 支持
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all  
+              capabilities: [gpu]  # 启用 GPU 计算能力
     command: flask run --host=0.0.0.0 --reload
 
 #   # SpringBoot 后端
