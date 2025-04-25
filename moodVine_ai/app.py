@@ -2,6 +2,7 @@ from flask import Flask
 from config import Config
 from services.deepseek import deepseek_bp
 from services.blip_api import blip_bp
+from services.sense_voice_api import sense_voice_bp
 
 
 def create_app():
@@ -11,6 +12,7 @@ def create_app():
     # 注册蓝图
     app.register_blueprint(deepseek_bp, url_prefix='/ai')
     app.register_blueprint(blip_bp, url_prefix='/ai')
+    app.register_blueprint(sense_voice_bp, url_prefix='/ai')
 
     # 基础路由
     @app.route('/')

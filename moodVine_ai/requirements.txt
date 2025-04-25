@@ -5,8 +5,13 @@ transformers>=4.26.0
 torch>=1.13.0
 accelerate>=1.0.1
 
-tokenizers==0.15.2
-realtimestt==0.1.13
-faster-whisper==1.0.1
+tokenizers==0.20.0
+
+funasr>=1.1.2
+numpy<=1.26.4
+gradio
+torchaudio>=0.10.0
+soundfile>=0.10.0
+
 
 -f https://download.pytorch.org/whl/torch_stable.html
