@@ -12,10 +12,9 @@ export default function Index() {
   })
 
   const hhh = () => {
-    // Taro.navigateTo({
-    //   url: '/pages/score/score',
-    // });
-    console.log("sssss")
+    Taro.navigateTo({
+      url: '/pages/shop/shop',
+    });
   };
 
   const handleSearch = () => {
@@ -24,7 +23,6 @@ export default function Index() {
 
   return (
     <View className='index'>
-      <Button color="primary">主要按钮</Button>
       <Text onClick={hhh}>Hello world!</Text>
     </View>
   )

@@ -5,6 +5,8 @@ import { increment, decrement, incrementByAmount } from '../../store/features/te
 import request from '../../utils/request';
 
 export default function Score() {
+  // 获取当前用户的积分值
+  
   // 获取状态
   const count = useSelector((state) => state.counter.value);
   // 获取 dispatch 函数
@@ -22,6 +24,7 @@ export default function Score() {
       <Text onClick={hhh}>Count: {count}</Text>
       <Button onClick={() => dispatch(increment())}>Increment</Button>
       <Button onClick={() => dispatch(decrement())}>Decrement</Button>
+      <Button onClick={() => dispatch(incrementByAmount(5))}>Increment by 5</Button>
     </View>
   );
 }

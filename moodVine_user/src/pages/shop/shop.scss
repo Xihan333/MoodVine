@@ -1,0 +1,42 @@
+.reward-list {
+  padding: 20px;
+}
+
+.reward-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px 20px 30px;
+  margin-bottom: 18px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 100px;
+}
+
+.reward-info {
+  display: flex;
+  align-items: center;
+}
+
+.reward-image {
+  width: 80px;
+  height: 80px;
+  margin-right: 12px;
+  border-radius: 50%;
+}
+
+.reward-name {
+  font-size: 32px;
+  color: #333333;
+}
+
+.reward-status {
+  font-size: 28px;
+  .item-available {
+    color: #f44336; // 兑换状态为红色
+  }
+  .item-redeemed {
+    color: #9e9e9e; // 已兑换状态为灰色
+  }
+}

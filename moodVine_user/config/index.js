@@ -21,10 +21,8 @@ export default defineConfig(async (merge, { command, mode }) => {
     defineConstants: {
     },
     copy: {
-      patterns: [
-      ],
-      options: {
-      }
+      patterns: [],
+      options: {}
     },
     framework: 'react',
     compiler: 'webpack5',

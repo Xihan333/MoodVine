@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import testReducer from './features/testSlice'; // 假设有一个 counterSlice
+import testReducer from './features/testSlice';
+import userReducer from './features/userSlice';
 
 const store = configureStore({
   reducer: {
-    counter: testReducer, // 将 reducer 添加到 store 中
+    counter: testReducer, // 将 reducer 添加到 store 中,
+    user: userReducer
   },
 });
 
