@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Flask 算法端
+  moodVine_ai:
+    build: ./moodVine_ai
+    image: moodvine-algorithm
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    volumes:
+      - ./moodVine_ai:/moodVine_ai
+      - /models_shared:/models_shared  # 显式指定缓存目录
+    working_dir: /moodVine_ai  # 显式指定工作目录
+    environment:
+      - FLASK_DEBUG=1
+      - FLASK_ENV=development
+      - HF_HOME=/models_shared  # 设置缓存目录
+    # 添加 GPU 支持
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all  
+              capabilities: [gpu]  # 启用 GPU 计算能力
+    command: flask run --host=0.0.0.0 --reload
+
+#   # SpringBoot 后端
+#   moodvine_backend:
+#     build: ./moodvine_backend
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       - algorithm
+#     restart: always
+
+#   # React 前端
+#   moodvine_user:
+#     build: ./moodVine_user
+#     ports:
+#       - "80:80"
+#     depends_on:
+#       - backend
+#     restart: always

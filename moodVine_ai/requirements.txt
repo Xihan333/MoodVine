@@ -1,0 +1,17 @@
+flask>=2.0.0
+requests>=2.28.0
+Pillow>=9.3.0
+transformers>=4.26.0
+torch>=1.13.0
+accelerate>=1.0.1
+
+tokenizers==0.20.0
+
+funasr>=1.1.2
+numpy<=1.26.4
+gradio
+torchaudio>=0.10.0
+soundfile>=0.10.0
+
+
+-f https://download.pytorch.org/whl/torch_stable.html

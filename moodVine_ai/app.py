@@ -1,47 +1,31 @@
-import requests
-from flask import Flask, request, jsonify
+from flask import Flask
+from config import Config
+from services.deepseek import deepseek_bp
+from services.blip_api import blip_bp
+from services.sense_voice_api import sense_voice_bp
 
-app = Flask(__name__)
 
-DEEPSEEK_API_URL = "http://10.2.8.77:3000/v1/chat/completions"
-DEEPSEEK_API_KEY = "sk-93nWYhI8SrnXad5m9932CeBdDeDf4233B21d93D217095f22"
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-@app.route('/test-deepseek', methods=['POST'])
-def test_deepseek():
-    try:
-        # 1. 获取请求数据
-        request_data = request.get_json()
-        if not request_data:
-            return jsonify({"error": "请求数据必须是JSON"}), 400
+    # 注册蓝图
+    app.register_blueprint(deepseek_bp, url_prefix='/ai')
+    app.register_blueprint(blip_bp, url_prefix='/ai')
+    app.register_blueprint(sense_voice_bp, url_prefix='/ai')
 
-        # 2. 调用DeepSeek API
-        headers = {
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        response = requests.post(
-            DEEPSEEK_API_URL,
-            headers=headers,
-            json=request_data,
-            timeout=30,
-            proxies={"http": None, "https": None}  
-        )
+    # 基础路由
+    @app.route('/')
+    def home():
+        return "MoodVine AI Service is Running"
 
-        # 3. 处理响应
-        if response.status_code == 200:
-            return jsonify(response.json())
-        else:
-            return jsonify({
-                "error": "API请求失败",
-                "status_code": response.status_code,
-                "response": response.text  # 返回原始响应以便调试
-            }), response.status_code
+    @app.route('/hello', methods=['GET'])
+    def hello():
+        return "hello"
 
-    except Exception as e:
-        return jsonify({
-            "error": "服务器内部错误",
-            "message": str(e)
-        }), 500
+    return app
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app = create_app()
+    app.run(host='0.0.0.0', port=5000)
