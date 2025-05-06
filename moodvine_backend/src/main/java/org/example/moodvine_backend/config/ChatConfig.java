@@ -18,5 +18,4 @@ public class ChatConfig {
                 .defaultAdvisors(new MessageChatMemoryAdvisor(redisChatMemory))
                 .build();
     }
-
 }
