@@ -12,7 +12,7 @@ import lombok.Setter;
 public class ResponseData {  //ResponseData：响应用户请求打包返回的信息
 
     private int code;
-    private String message;
+    private String msg;
     private Object data;
 
     public static ResponseData ok() {  //告知响应成功
