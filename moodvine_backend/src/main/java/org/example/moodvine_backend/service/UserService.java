@@ -6,6 +6,7 @@ import org.example.moodvine_backend.model.DTO.LoginData;
 import org.example.moodvine_backend.model.DTO.RegisterData;
 import org.example.moodvine_backend.model.PO.Gender;
 import org.example.moodvine_backend.model.PO.User;
+import org.example.moodvine_backend.model.PO.UserType;
 import org.example.moodvine_backend.model.VO.JwtResponse;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.utils.Const;
@@ -22,6 +23,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 
 @Service
 public class UserService {
@@ -34,6 +44,94 @@ public class UserService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Value("${wx.appid}")
+    private String appid;
+
+    @Value("${wx.secret}")
+    private String secret;
+
+    public ResponseData wxLogin(String code) {
+        String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
+        HttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        try {
+            HttpResponse response = httpClient.execute(httpGet);
+            String result = EntityUtils.toString(response.getEntity());
+            Map<String, String> resultMap = parseJson(result);
+            String openid = resultMap.get("openid");
+            if (openid != null) {
+                // 检查用户是否已注册
+                User user = userMapper.findByOpenId(openid);
+                if (user == null) {
+                    // 用户未注册，进行注册
+                    user = new User();
+                    user.setOpen_id(openid);
+                    userMapper.insert(user);
+                }
+                // 生成 JWT 令牌
+                String token = jwtUtil.generateToken(user.getEmail());
+                Map<String, String> responseData = new HashMap<>();
+                responseData.put("token", token);
+                return ResponseData.success(responseData);
+            } else {
+                return ResponseData.failure(401, "微信登录失败");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseData.failure(500, "服务器内部错误");
+        }
+    }
+
+    private Map<String, String> parseJson(String json) {
+        // 实现 JSON 解析逻辑
+        Map<String, String> resultMap = new HashMap<>();
+        String[] pairs = json.replace("{", "").replace("}", "").split(",");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split(":");
+            if (keyValue.length == 2) {
+                resultMap.put(keyValue[0].replace("\"", "").trim(), keyValue[1].replace("\"", "").trim());
+            }
+        }
+        return resultMap;
+    }
+
+    public ResponseData adminLogin(LoginData loginData) {
+        // 获取用户输入的邮箱和密码
+        String email = loginData.getEmail();
+        String password = loginData.getPassword();
+
+        // 查看该邮箱是否注册过
+        boolean userExist = userMapper.judgeExistsByEmail(email);
+        if (!userExist) {
+            return ResponseData.failure(401, "该邮箱未被注册！");
+        }
+
+        // 从数据库中查询用户信息
+        User user = userMapper.findByEmail(email);
+
+        // 校验用户是否为管理员
+        if (user.getUserType() != UserType.ADMIN) {
+            return ResponseData.failure(401, "您不是管理员，无法登录！");
+        }
+
+        // 校验用户是否存在以及密码是否匹配
+        if (!BCrypt.checkpw(password, user.getPassword())) {
+            return ResponseData.failure(401, "邮箱或密码错误");
+        }
+
+        // 生成JWT令牌
+        String token = jwtUtil.generateToken(loginData.getEmail());
+
+        // 创建JwtResponse对象并设置令牌
+        JwtResponse jwtResponse = new JwtResponse();
+        jwtResponse.setToken(token);
+        jwtResponse.setEmail(email);
+
+        // 返回包含JWT令牌的响应实体
+        return ResponseData.success(jwtResponse);
+    }
+
 
     private static final Logger logger = LoggerFactory
             .getLogger(UserService.class);
@@ -216,4 +314,8 @@ public class UserService {
 //        userMapper.update(user);
 //        return ResponseData.ok();
 //    }
+    public ResponseData addScore(Integer userId, Integer addScore){
+        userMapper.addScore(userId,addScore);
+        return new ResponseData(200,"成功增加",null);
+    }
 }

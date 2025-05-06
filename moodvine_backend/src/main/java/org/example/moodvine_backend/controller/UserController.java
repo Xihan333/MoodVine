@@ -8,11 +8,9 @@ import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
 
 @RequestMapping("/user")
 @RestController
@@ -29,6 +27,22 @@ public class UserController {
     @PostMapping("/test")
     public ResponseData test(@CustomParam Integer id) {
         return ResponseData.success(id);
+    }
+
+    @PostMapping("/addScore")
+    public ResponseData addScore(@CurrentUser User user,@CustomParam Integer addScore) {
+        return userService.addScore(user.getId(),addScore);
+    }
+
+    @PostMapping("/wxlogin")
+    public ResponseData wxLogin(@RequestBody Map<String, String> requestData) {
+        String code = requestData.get("code");
+        return userService.wxLogin(code);
+    }
+
+    @PostMapping("/adminLogin")
+    public ResponseData adminLogin(@RequestBody LoginData loginData) {
+        return userService.adminLogin(loginData);
     }
 
 //    @PostMapping("/login")
