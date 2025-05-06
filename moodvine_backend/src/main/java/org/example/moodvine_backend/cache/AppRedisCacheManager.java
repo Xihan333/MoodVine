@@ -1,8 +1,7 @@
-package org.example.moodvine_backend.cache.impl;
+package org.example.moodvine_backend.cache;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.moodvine_backend.cache.IGlobalCache;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
