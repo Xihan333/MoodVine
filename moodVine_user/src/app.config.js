@@ -5,7 +5,8 @@ export default defineAppConfig({
     'pages/score/score',
     'pages/shop/shop',
     'pages/activity/activity',
-    'pages/test/test'
+    'pages/test/test',
+    'pages/people/people'
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -35,15 +36,15 @@ export default defineAppConfig({
       {
         pagePath: 'pages/activity/activity',
         text: '活动',
-        iconPath: 'assets/activity.png',
-        selectedIconPath: 'assets/activity_fill.png',
+        iconPath: './assets/activity.png',
+        selectedIconPath: './assets/activity_fill.png',
       },
-      // {
-      //   pagePath: 'pages/score/score',
-      //   text: '我的',
-      //   // iconPath: 'assets/logs.png',
-      //   // selectedIconPath: 'assets/logs-active.png',
-      // },
+      {
+        pagePath: 'pages/people/people',
+        text: '我的',
+        iconPath: './assets/people.png',
+        selectedIconPath: './assets/people_fill.png',
+      },
     ],
   },
 })
