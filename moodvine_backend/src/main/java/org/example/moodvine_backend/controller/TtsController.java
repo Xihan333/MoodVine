@@ -25,5 +25,4 @@ public class TtsController {
     public ResponseData Speech(@CustomParam String text) throws Exception {
         return ttsService.speech(text);
     }
-
 }
