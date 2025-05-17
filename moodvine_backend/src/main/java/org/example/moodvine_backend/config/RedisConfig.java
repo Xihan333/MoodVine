@@ -1,7 +1,10 @@
 package org.example.moodvine_backend.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.example.moodvine_backend.cache.IGlobalCache;
-import org.example.moodvine_backend.cache.impl.AppRedisCacheManager;
+import org.example.moodvine_backend.cache.AppRedisCacheManager;
+import org.example.moodvine_backend.cache.MessageRedisSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
@@ -16,7 +19,11 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import redis.clients.jedis.JedisPoolConfig;
+
+import org.springframework.ai.chat.messages.Message;
+
 
 @EnableCaching
 @Configuration
@@ -75,4 +82,28 @@ public class RedisConfig {
     IGlobalCache cache(RedisTemplate redisTemplate, HashOperations hashOperations) {
         return new AppRedisCacheManager(redisTemplate, hashOperations);
     }
+
+    @Bean
+    public RedisTemplate<String, Message> messageRedisTemplate(RedisConnectionFactory factory, Jackson2ObjectMapperBuilder builder) {
+        RedisTemplate<String, Message> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+
+        // 使用String序列化器作为key的序列化方式
+        template.setKeySerializer(new StringRedisSerializer());
+        // 使用自定义的Message序列化器作为value的序列化方式
+        template.setValueSerializer(new MessageRedisSerializer(builder.build()));
+
+        // 设置hash类型的key和value序列化方式
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(new MessageRedisSerializer(builder.build()));
+
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().registerModule(new JavaTimeModule());
+    }
+
 }
