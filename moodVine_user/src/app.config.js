@@ -4,8 +4,11 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/score/score',
     'pages/shop/shop',
-    'pages/activity/activity',
-    'pages/test/test'
+    'pages/activityList/activityList',
+    'pages/test/test',
+    'pages/activityDetail/activityDetail',
+    'pages/diaryEditor/diaryEditor',
+    'pages/diaryList/diaryList',
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -33,7 +36,8 @@ export default defineAppConfig({
         selectedIconPath: './assets/coupons_fill.png',
       },
       {
-        pagePath: 'pages/activity/activity',
+        // pagePath: 'pages/activityList/activityList',
+        pagePath: 'pages/diaryEditor/diaryEditor',
         text: '活动',
         iconPath: 'assets/activity.png',
         selectedIconPath: 'assets/activity_fill.png',

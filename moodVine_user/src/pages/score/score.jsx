@@ -1,9 +1,7 @@
 import Taro from '@tarojs/taro';
-import { React, useState, useEffect } from 'react';
-import { View, Text, Button, Image } from '@tarojs/components';
-import { useSelector, useDispatch } from 'react-redux';
-import { increment, decrement, incrementByAmount } from '../../store/features/testSlice';
-import request from '../../utils/request';
+import { React } from 'react';
+import { View, Text, Image } from '@tarojs/components';
+import { useSelector } from 'react-redux';
 import { Progress, ConfigProvider } from "@taroify/core"
 import potImg from '../../assets/pot.png'
 import './score.scss'
