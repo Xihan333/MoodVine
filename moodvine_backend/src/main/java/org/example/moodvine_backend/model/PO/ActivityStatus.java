@@ -1,19 +1,19 @@
 package org.example.moodvine_backend.model.PO;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
-public enum UserType {
-    ADMIN("1"),
-    USER("0");
-
+public enum ActivityStatus {
+    NOT_STARTED("0"),
+    ONGOING("1"),
+    ENDED("2");
     @EnumValue
     private final String code;
-    UserType(String code){
+
+    ActivityStatus(String code) {
         this.code = code;
     }
 
-    public String getCode(){
+    public String getCode() {
         return code;
     }
 }
