@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class Activity {
     @TableField("finish_time")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date finishTime;
+    @JsonRawValue
     private String picture;
     private Integer number;
     private ActivityStatus status;
