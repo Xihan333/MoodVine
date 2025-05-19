@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,28 +14,21 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("activity")
-public class Activity {
+@TableName("clockInActivity")
+public class ClockInActivity {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String name;
-    private String description;
-    @TableField("start_time")
+    private String content;
+
+    @TableField("picture")
+    private String pictures; // 存储为JSON字符串
+
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date startTime;
+    private Date date;
 
-    @TableField("finish_time")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date finishTime;
+    @TableField("activity_id")
+    private Integer activityId;
 
-    @JsonRawValue
-    private String picture;
-
-    private Integer number;
-
-    private ActivityStatus status;
-
-    @TableField(exist = false)
-    private Boolean isSignUp;
-
+    @TableField("user_id")
+    private Integer userId;
 }

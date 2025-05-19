@@ -4,10 +4,12 @@ import org.example.moodvine_backend.annotation.CurrentUser;
 import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.ActivityService;
+import org.example.moodvine_backend.service.ClockInActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -16,11 +18,14 @@ import java.util.Map;
 public class UserActivityController {
     @Autowired
     private ActivityService activityService;
+    @Autowired
+    private ClockInActivityService clockInActivityService;
 
     @GetMapping("/getAllActivities")
     public ResponseData getAllActivities(@CurrentUser User user){
         return activityService.getUserActivities(user.getId());
     }
+
 //    @GetMapping("/getAllActivities")
 //    public ResponseData getAllActivities(@RequestParam Integer userId) {
 //        return activityService.getUserActivities(userId);
@@ -35,5 +40,24 @@ public class UserActivityController {
         Integer activityId = request.get("activityId");
         return activityService.signUpActivity(user.getId(),activityId);
 //        return activityService.signUpActivity(userId,activityId);
+    }
+
+    @PostMapping("/clockIn")
+    public ResponseData clockIn(
+            @CurrentUser User user,
+            @RequestBody Map<String, Object> request
+    ){
+//        Integer userId = (Integer) request.get("userId");
+        Integer activityId = (Integer) request.get("activityId");
+        String content = (String) request.get("content");
+        List<String> pictures = (List<String>) request.get("pictures");
+
+        if (activityId == null || content == null) {
+            return ResponseData.failure(400, "参数缺失");
+        }
+
+        return clockInActivityService.clockInActivity(user.getId(), activityId, content, pictures);
+//        return clockInActivityService.clockInActivity(userId, activityId, content, pictures);
+
     }
 }
