@@ -7,4 +7,5 @@ import java.util.List;
 public interface ClockInActivityService {
     ResponseData clockInActivity (Integer userId, Integer activityId, String content, List<String> pictures);
 
+    ResponseData getClockIns(Integer userId, Integer activityId);
 }

@@ -4,14 +4,17 @@ import org.example.moodvine_backend.mapper.ActivityMapper;
 import org.example.moodvine_backend.mapper.ClockInActivityMapper;
 import org.example.moodvine_backend.model.PO.Activity;
 import org.example.moodvine_backend.model.PO.ClockInActivity;
+import org.example.moodvine_backend.model.VO.ClockInVo;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClockInActivityServiceImpl implements ClockInActivityService{
@@ -43,5 +46,39 @@ public class ClockInActivityServiceImpl implements ClockInActivityService{
 
         return ResponseData.ok().msg("打卡成功").data(Collections.emptyMap());
 
+    }
+
+
+    @Override
+    public ResponseData<?> getClockIns(Integer userId, Integer activityId){
+        Activity activity = activityMapper.selectActivityById(activityId);
+        if (activity == null) {
+            return ResponseData.notFound().msg("活动不存在");
+        }
+
+        //计算活动天数
+        long period = ChronoUnit.DAYS.between(
+                activity.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                activity.getFinishTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        ) + 1;
+
+
+        List<ClockInActivity> records = clockInActivityMapper.selectClockInsByUserAndActivity(userId, activityId);
+
+        List<ClockInVo> clockIns = records.stream().map(record -> {
+            ClockInVo vo = new ClockInVo();
+            vo.setId(record.getId());
+            vo.setDate(record.getDate());
+            vo.setContent(record.getContent());
+            vo.setPictures(record.getPicturesList());
+            return vo;
+        }).collect(Collectors.toList());
+
+        // 5. 构造响应
+        Map<String, Object> data = new HashMap<>();
+        data.put("period", period);
+        data.put("clockIns", clockIns);
+
+        return ResponseData.ok().data(data).msg("查询成功");
     }
 }

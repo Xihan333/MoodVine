@@ -24,4 +24,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     @Update("UPDATE activity SET number = number + 1 WHERE id = #{activityId}")
     int incrementParticipantNumber(@Param("activityId") Integer activityId);
 
+    @Select("SELECT * FROM activity WHERE id = #{activityId}")
+    Activity selectActivityById(@Param("activityId") Integer activityId);
+
 }

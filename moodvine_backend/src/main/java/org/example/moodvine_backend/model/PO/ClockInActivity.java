@@ -9,7 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -31,4 +34,10 @@ public class ClockInActivity {
 
     @TableField("user_id")
     private Integer userId;
+
+    public List<String> getPicturesList() {
+        return (pictures != null && !pictures.isEmpty()) ?
+                Arrays.asList(pictures.split(",")) :
+                Collections.emptyList();
+    }
 }

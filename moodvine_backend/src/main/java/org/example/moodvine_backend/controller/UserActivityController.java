@@ -60,4 +60,19 @@ public class UserActivityController {
 //        return clockInActivityService.clockInActivity(userId, activityId, content, pictures);
 
     }
+
+    @PostMapping("/getClockIns")
+    public ResponseData getClockIns(
+            @CurrentUser User user,
+            @RequestBody Map<String, Integer> request
+    ){
+//        Integer userId = (Integer) request.get("userId");
+        Integer activityId = request.get("activityId");
+        if (activityId == null) {
+            return ResponseData.failure(400, "活动ID不能为空");
+        }
+        return clockInActivityService.getClockIns(user.getId(), activityId);
+//        return clockInActivityService.getClockIns(userId, activityId);
+
+    }
 }
