@@ -15,7 +15,6 @@ export default function Index() {
 
   useLoad(() => {
     const parsedData = JSON.parse(dataString);
-    console.log(parsedData)
     setData(parsedData); // 模拟异步加载
   });
 
@@ -23,7 +22,7 @@ export default function Index() {
 
   return (
     <View className='index'>
-      <MoodCalendar contributions={data}/>
+      <MoodCalendar className="calendar" contributions={data}/>
 
       <Text className="footer" onClick={() => Taro.navigateTo({ url: '/pages/shop/shop' })}>
         跳转到商店页面
