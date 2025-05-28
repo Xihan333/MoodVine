@@ -1,0 +1,118 @@
+.activity-page {
+  position: relative;
+  height: 100vh; /* 确保页面高度占满整个视口 */
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-image {
+  width: 100%;
+  object-fit: cover; /* 确保图片按比例填充 */
+}
+
+.activity-detail-card {
+  display: flex;
+  flex-direction: column;
+  margin: -40px 16px 0; /* 负的 top margin 使卡片稍微覆盖图片 */
+  background-color: white;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.activity-title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333333;
+}
+
+.activity-date,.activity-description {
+  margin-top: 12px;
+  font-size: 24px;
+  line-height: 1.5;
+  color: #666;
+}
+
+.fixed-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 16px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2; /* 确保底部栏在最上层 */
+}
+
+.signup-button {
+  width: 90%;
+  border-radius: 50px;
+  background-color: #ffb362;
+  color: #FFFFFF;
+  &:active {
+    background-color: #ff9933;
+  }
+}
+.signuped-button{
+  background-color: #ffddb9;
+}
+
+// "活动打卡"卡片
+.activity-clockin-card {
+  display: flex;
+  flex-direction: column;
+  margin: 16px;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333333;
+  align-self: flex-start;
+}
+
+.clockin-container{
+  display: flex;
+  justify-content: space-between;
+}
+
+.circles-container {
+  display: flex;
+}
+
+.circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+  &.clocked {
+    background-color: #ffb362;
+  }
+}
+
+.clockin-button {
+  height: 48px;
+  background-color: #ffb362;
+  color: #ffffff;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  margin: 0px;
+  padding: 20px;
+  &:active {
+    background-color: #ff9933;
+  }
+  &.clockined-button{
+    background-color: #ffddb9;
+  }
+}

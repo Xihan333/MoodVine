@@ -14,7 +14,7 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT EXISTS(SELECT 1 FROM user WHERE email=#{email})") //寻找指定email的用户
     boolean judgeExistsByEmail(String email);
 
-    @Select("select * from user where open_id=#{openid}")  //获取指定邮箱的用户
+    @Select("select * from user where open_id=#{openid}")
     User findByOpenId(String openid);
 
     @Select("select * from user where email=#{email}")  //获取指定邮箱的用户
