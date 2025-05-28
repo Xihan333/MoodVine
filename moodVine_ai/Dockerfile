@@ -9,7 +9,7 @@ FROM python:3.8
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
 
 # 设置工作目录
 WORKDIR /moodVine_ai

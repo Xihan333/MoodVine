@@ -9,11 +9,11 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseData {  //ResponseData：响应用户请求打包返回的信息
+public class ResponseData<T> {  //ResponseData：响应用户请求打包返回的信息
 
     private int code;
     private String msg;
-    private Object data;
+    private T data;
 
     public static ResponseData ok() {  //告知响应成功
         return new ResponseData(200,"ok",null);
@@ -41,5 +41,16 @@ public class ResponseData {  //ResponseData：响应用户请求打包返回的�
 
     public static ResponseData notFound() {  //告知资源未找到错误
         return new ResponseData(404, "Not Found",null);
+    }
+
+
+    public ResponseData<T> data(T data) {
+        this.data = data;
+        return this;
+    }
+
+    public ResponseData msg(String msg) {
+        this.msg = msg;
+        return this;
     }
 }

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.w3c.dom.Text;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +18,8 @@ public class User {  //User : 有关用户的全部信息
     //用户id
     @TableId(type = IdType.AUTO)
     private Integer id;
+
+    private String open_id;
 
     private String email; //邮箱
 
@@ -30,5 +34,7 @@ public class User {  //User : 有关用户的全部信息
     private Gender gender; //性别
 
     private UserType userType;
+
+    private int score; //蜜罐值
 
 }

@@ -34,7 +34,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         String requestURI = request.getRequestURI();
         System.out.println(request.getMethod().toString());
 
-        if (requestURI.contains("/login")) {
+        if (requestURI.contains("/login")|| requestURI.contains("/adminLogin")) {
             //System.out.println("login request! pass");
             return true;
         }
