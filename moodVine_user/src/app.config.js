@@ -39,15 +39,15 @@ export default defineAppConfig({
         // pagePath: 'pages/activityList/activityList',
         pagePath: 'pages/diaryEditor/diaryEditor',
         text: '活动',
-        iconPath: 'assets/activity.png',
-        selectedIconPath: 'assets/activity_fill.png',
+        iconPath: './assets/activity.png',
+        selectedIconPath: './assets/activity_fill.png',
       },
-      // {
-      //   pagePath: 'pages/score/score',
-      //   text: '我的',
-      //   // iconPath: 'assets/logs.png',
-      //   // selectedIconPath: 'assets/logs-active.png',
-      // },
+      {
+        pagePath: 'pages/people/people',
+        text: '我的',
+        iconPath: './assets/people.png',
+        selectedIconPath: './assets/people_fill.png',
+      },
     ],
   },
 })

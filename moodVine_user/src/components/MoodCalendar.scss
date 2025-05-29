@@ -1,0 +1,109 @@
+@import "../css/mixins.scss";
+
+.container {
+	display: grid;
+	// 关键修改点1：扩展列数适配五个月（原10列改为22列）
+	grid-template-columns: auto repeat(22, 30px);  
+	// 关键修改点2：优化行高适配更长的月份标签
+	grid-template-rows: 24px repeat(7, 30px) 24px;  
+	gap: 3px;
+	width: fit-content;
+	font-size: 18px;  // 优化字号
+
+	@include mobile-layout {
+		grid-template-columns: auto repeat(22, 28px);  // 移动端微调列宽
+		// 关键修改点3：增强移动端滚动体验
+		overflow-x: scroll;
+		scroll-snap-type: x mandatory;
+		padding-bottom: 10px;
+	}
+}
+
+.month {
+	grid-row: 1/2;
+	scroll-snap-align: start;  // 滚动对齐优化
+	// 关键修改点4：防止长月份名称溢出
+	white-space: nowrap;  
+	text-overflow: ellipsis;
+}
+
+.week {
+	margin-left: 40px;
+	grid-row: 3;
+	grid-column: 1/2;
+	// 关键修改点5：垂直对齐优化
+	align-self: center;  
+	line-height: 1.2;
+
+	& + .week { grid-row: 5; }
+	& + .week + .week { grid-row: 7; }
+}
+
+.tiles {
+	// 关键修改点6：扩展网格容器跨度
+	grid-column: 2/-1;  
+	grid-row: 2/9;
+	display: grid;
+	grid-auto-flow: column;
+	// 关键修改点7：动态列数适配五个月（原10列改为auto-fill）
+	grid-template-columns: repeat(auto-fill, 30px);  
+	grid-template-rows: repeat(7, 30px);
+	gap: 3px;
+	// 关键修改点8：确保网格容器宽度扩展
+	min-width: max-content;  
+
+	@include mobile-layout {
+		grid-template-columns: repeat(auto-fill, 28px);
+	}
+}
+
+$level-colors: (
+  0: #f0f0f0,   // 默认灰
+  1: #9BE9A8,   // 等级1浅绿
+  2: #40C463,   // 等级2中绿
+  3: #30A14E,   // 等级3深绿
+  4: #216E39,   // 等级4墨绿
+  5: #0F532D    // 等级5黑绿
+);
+
+
+.tile {
+	width: 100%;  // 改为百分比适配响应式
+	height: 100%;
+	// 关键修改点9：优化点击区域
+	min-width: 28px;  
+	// 关键修改点10：平滑颜色过渡
+	border-radius: 3px;
+	outline: 1px solid rgba(27, 35, 36, 0.06);
+	outline-offset: -1px;
+	background-color: var(--tile-color);
+  
+}
+
+.total {
+	// 关键修改点11：调整统计信息位置
+	grid-column: 2/span 10;  
+	margin-top: 8px;
+	font-size: 14px;
+}
+
+.legend {
+	// 关键修改点12：重新定位图例
+	grid-column: -1/span 3;  
+	margin-top: 8px;
+	display: flex;
+	gap: 5px;
+	// 关键修改点13：右对齐优化
+	justify-self: end;  
+	align-items: center;
+
+	// 图例说明样式
+	&::before {
+		content: "低";
+		color: #666;
+	}
+	&::after {
+		content: "高";
+		color: #666;
+	}
+}

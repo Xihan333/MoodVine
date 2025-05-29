@@ -56,6 +56,7 @@
     "@tarojs/shared": "3.6.11",
     "@tarojs/taro": "3.6.11",
     "buffer": "^6.0.3",
+    "clsx": "^2.1.1",
     "node-buffer": "^1.0.3",
     "node-util": "^0.0.1",
     "normalize.css": "^8.0.1",
