@@ -6,6 +6,7 @@ import { useState } from 'react'
 import MoodCalendar from '../../components/MoodCalendar'
 import dataString from '../../components/temp'
 import jar from '../../assets/jar.png'
+import add_btn from '../../assets/add_btn.png'
 import 'normalize.css'
 import './index.scss'
 // import '../assets/fonts/pinbo.css'
@@ -32,7 +33,7 @@ export default function Index() {
           </Text>
       </View>
       <MoodCalendar className="calendar" contributions={data}/>
-
+      <Image className='add_btn' src={add_btn} onClick={() => Taro.switchTab({ url: '/pages/diaryEditor/diaryEditor'})}/>
     </View>
   )
 }

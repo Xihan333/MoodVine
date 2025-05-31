@@ -18,14 +18,6 @@
   height: 100px;
 }
 
-   /* styles.css */
-// @font-face {
-//   font-family: 'TagFont';
-//   src: url('../../assets/fonts/新愚公拼搏体.ttf') format('ttf');
-//   font-weight: normal;
-//   font-style: normal;
-//   font-display: swap; /* 使用备用字体直到自定义字体加载完成 */
-// }
 
 .mood-tag {
   font-family: 'XinYuGongPinBoTi', sans-serif !important;
@@ -34,4 +26,13 @@
   position: relative;
   margin: auto 5%;
   justify-content: center;
+  color: #1D5E04;
+}
+
+.add_btn {
+  position: absolute;
+  height: 100px;
+  width: 100px;
+  bottom: 80px;
+  right: 50px;
 }
