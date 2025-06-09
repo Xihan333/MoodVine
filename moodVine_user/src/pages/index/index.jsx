@@ -39,11 +39,11 @@ const Scrips = () => {
   };
 
   const [data,setData] = useState([
-    { 'mood': 1, 'sentance': '明天会更好' },
-    { 'mood': 2, 'sentance': '明天会更好明天会更好明天会更好明天会更好' },
-    { 'mood': 3, 'sentance': '明天会更好' },
-    { 'mood': 4, 'sentance': '明天会更好' },
-    { 'mood': 5, 'sentance': '明天会更好' },
+    { 'mood': 1, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'mood': 2, 'sentance': '明天会更好明天会更好明天会更好明天会更好', 'time': '5-29' },
+    { 'mood': 3, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'mood': 4, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'mood': 5, 'sentance': '明天会更好', 'time': '5-29' },
   ])
 
   const itemList = data.map((item,index) => {
@@ -62,6 +62,7 @@ const Scrips = () => {
       >
         <Image className='mood' src={moodIcon} />
         <Text className="sentence">{item.sentance}</Text>
+        <Text className='time'>{ item.time }</Text>
       </View>
     );
 });
@@ -98,7 +99,7 @@ export default function Index() {
       <Image className='add_btn' src={add_btn} onClick={() => Taro.switchTab({ url: '/pages/diaryEditor/diaryEditor'})}/>
       <View className='Note'>
         <Text className='title'>纸条集</Text>
-          <Text className='more' onClick={() => Taro.switchTab({ url: '/pages/score/score'})}> {'查看更多>'}</Text>
+          <Text className='more' onClick={() => Taro.navigateTo({url: '/pages/moreScrips/moreScrips'})}> {'查看更多>'}</Text>
       </View>
       <Scrips/>
     </View>

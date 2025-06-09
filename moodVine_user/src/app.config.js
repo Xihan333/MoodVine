@@ -10,6 +10,7 @@ export default defineAppConfig({
     'pages/diaryEditor/diaryEditor',
     'pages/diaryList/diaryList',
     'pages/people/people',
+    'pages/moreScrips/moreScrips',
   ],
   window: {
     backgroundTextStyle: 'light',
