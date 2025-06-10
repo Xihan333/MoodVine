@@ -48,15 +48,13 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
         token = jwtUtil.extractTokenFromHeader(token);
         System.out.println("Authorization:   "+ token);
-        // 模拟Token验证，这里假设Token合法性校验方法为isValidToken
+        // 验证Token的有效性
         if (!jwtUtil.validateToken(token)) {
-            // Token验证失败，重定向到登录页面或其他错误页面
-            // 当你使用 response.sendRedirect("/api/auth/login") 方法时，它会向客户端浏览器发送一个临时重定向响应，
-            // 指示浏览器向指定的 URL 发起一个新的请求。这个新的请求将会是一个 GET 请求。
             System.out.println("false!!!!!");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
+        // 管理员权限检查
         if(Arrays.stream(FOR_ADMIN).anyMatch(requestURI::startsWith)) {
             System.out.println(jwtUtil.getUserTypeFromToken(token) );
             if (jwtUtil.getUserTypeFromToken(token) != UserType.ADMIN) {
