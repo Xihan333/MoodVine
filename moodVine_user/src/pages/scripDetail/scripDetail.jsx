@@ -1,4 +1,4 @@
-import { View } from "@tarojs/components"
+import { View, Text } from "@tarojs/components"
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
@@ -7,6 +7,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import 'normalize.css'
 import './scripDetail.scss'
+
+import bgcard from '../../assets/moodpaper/bigpaper.png'
 
 const scripDetail = () => {
   const [loading, setLoading] = useState(false)
@@ -21,9 +23,13 @@ const scripDetail = () => {
 
     return (
         <View>
-            <View>心情指数: {data.mood}</View>
-            <View>每日语录: {data.sentance}</View>
-            <View>更新时间: {data.time}</View>
+            <View 
+              className="scrip-card"
+              style={{ backgroundImage: `url(${bgcard})` }}
+            >
+                <Text className="scrip-content">{data.sentance}</Text>
+            </View>
+            
         </View>
     );
 };   

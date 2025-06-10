@@ -1,0 +1,18 @@
+.scrip-card {
+    position: relative; /* 定位基准 */
+    width: 95%;
+    height: 330px;
+    margin: auto;
+    margin-top: 10px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.scrip-content {
+    position: absolute;
+    top: 20%;
+    left: 10%;
+    width: 80%;
+    white-space: normal;
+    font-weight: bold;
+}

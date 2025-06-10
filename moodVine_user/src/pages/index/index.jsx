@@ -32,11 +32,11 @@ const Scrips = () => {
   };
 
   const [data,setData] = useState([
-    { 'mood': 1, 'sentance': '明天会更好', 'time': '5-29' },
-    { 'mood': 2, 'sentance': '明天会更好明天会更好明天会更好明天会更好', 'time': '5-29' },
-    { 'mood': 3, 'sentance': '明天会更好', 'time': '5-29' },
-    { 'mood': 4, 'sentance': '明天会更好', 'time': '5-29' },
-    { 'mood': 5, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'id': 1, 'mood': 1, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'id': 2, 'mood': 2, 'sentance': '明天会更好明天会更好明天会更好明天会更好', 'time': '5-29' },
+    { 'id': 3, 'mood': 3, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'id': 4, 'mood': 4, 'sentance': '明天会更好', 'time': '5-29' },
+    { 'id': 5, 'mood': 5, 'sentance': '明天会更好', 'time': '5-29' },
   ])
 
   const dispatch = useDispatch();
