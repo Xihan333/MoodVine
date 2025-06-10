@@ -74,6 +74,35 @@ const Scrips = () => {
       </View>
     );
 }
+const getWxCode = async () => {
+  const { code } = await Taro.login();
+  return code; // 示例： "023D6w0w3bJYQU2ic30w3TZABC0D6w0K"
+};
+
+const handleLogin = async () => {
+  try {
+    const code = await getWxCode();
+    console.log(code)
+    const res = await Taro.request({
+      url: 'http://localhost:2025/user/wxlogin', // 替换为实际接口地址
+      method: 'POST',
+      data: { code },
+      header: { 'Content-Type': 'application/json' }
+    });
+    console.log(res.data)
+
+    if (res.data.code === 200) {
+      const { token, userInfo } = res.data; // 假设返回 token 和用户数据
+      Taro.setStorageSync('token', token); // 存储 token
+      Taro.setStorageSync('userInfo', userInfo); // 存储用户信息
+      Taro.showToast({ title: '登录成功', icon: 'success' });
+    } else {
+      Taro.showToast({ title: '登录失败', icon: 'none' });
+    }
+  } catch (error) {
+    Taro.showToast({ title: '登录失败', icon: 'none' });
+  }
+};
 
 export default function Index() {
 
@@ -84,6 +113,7 @@ export default function Index() {
   useLoad(() => {
     const parsedData = JSON.parse(dataString);
     setCalendarData(parsedData); // 模拟异步加载
+
   });
 
   if (!calendarData) return <View>Loading...</View>;
@@ -96,6 +126,7 @@ export default function Index() {
             { moodTag } 
           </Text>
       </View>
+      <Button onClick={handleLogin}>微信一键登录</Button>
       <MoodCalendar className="calendar" contributions={calendarData}/>
       <Image className='add_btn' src={add_btn} onClick={() => Taro.switchTab({ url: '/pages/diaryEditor/diaryEditor'})}/>
       <View className='Note'>
