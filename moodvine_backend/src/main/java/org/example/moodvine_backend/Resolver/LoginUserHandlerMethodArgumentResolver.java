@@ -35,9 +35,23 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
         // 获取请求中的Token
         String token = request.getHeader("Authorization");
         //去掉"Bearer "
+        if(token == null){
+            return null; // No token provided, return null user
+        }
         token = jwtUtil.extractTokenFromHeader(token);
+        
+        String identifier = jwtUtil.getSubjectFromToken(token);
+        if (identifier == null) {
+            return null; // Invalid token or no subject
+        }
 
-        String email = jwtUtil.getEmailFromToken(token);
-        return userMapper.findByEmail(email);
+        // Try to find user by email first (for regular users)
+        User user = userMapper.findByEmail(identifier);
+        if (user == null) {
+            // If not found by email, try by open_id (for WeChat users)
+            user = userMapper.findByOpenId(identifier);
+        }
+        
+        return user;
     }
 }

@@ -2,6 +2,7 @@ package org.example.moodvine_backend.utils;
 
 import org.example.moodvine_backend.cache.IGlobalCache;
 import org.example.moodvine_backend.mapper.UserMapper;
+import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.PO.UserType;
 import io.jsonwebtoken.*;
 import lombok.Data;
@@ -36,9 +37,33 @@ public class JwtUtil {
     //@Value("${jwt.data.expiration}")
     private Long expiration = 604800L;
 
-    //根据邮箱生成token
-    //传入的是使用SpringSecurity里的UserDetails
+    // 根据用户对象生成token (新方法)
+    public String generateToken(User user) {
+        HashMap<String, Object> claims = new HashMap<>();
+        String identifier = null;
+        if (user.getEmail() != null) {
+            identifier = user.getEmail();
+        } else if (user.getOpenId() != null) {
+            identifier = user.getOpenId();
+        }
+
+        if (identifier == null) {
+            throw new IllegalArgumentException("User must have either an email or an open_id for token generation.");
+        }
+
+        claims.put(Claims.SUBJECT, identifier);
+        claims.put(Claims.ISSUED_AT, new Date());
+
+        // token储存到redis
+        String token = createToken(claims);
+        iGlobalCache.saveToken(identifier, token, expiration); // Use identifier as key in Redis
+        return token;
+    }
+
+    // 旧的根据email生成token的方法，现在我们倾向于使用generateToken(User user)
+    // 保留此方法以避免对现有代码的破坏，但建议逐渐替换
     public String generateToken(String email) {
+        // For backward compatibility, assumes email is the subject
         HashMap<String, Object> claims = new HashMap<>();
         claims.put(Claims.SUBJECT, email);
         claims.put(Claims.ISSUED_AT, new Date());
@@ -48,30 +73,31 @@ public class JwtUtil {
         return token;
     }
 
-    //根据token获取邮箱
-    public String getEmailFromToken(String token) {
-        String email = "";
+    //根据token获取主题（可以是email或open_id）
+    public String getSubjectFromToken(String token) {
+        String subject = null;
         try {
             Claims claims = getClaimsFromToken(token);
-            email = claims.getSubject();
+            subject = claims.getSubject();
         } catch (Exception e) {
-            email = null;
-            log.info("error:{}", "can not find email from token");
+            log.info("error: {}", "can not find subject from token", e);
         }
-        return email;
+        return subject;
     }
 
-    //根据token获取用户身份
+    // 根据token获取用户身份
     public UserType getUserTypeFromToken(String token) {
-        String email = "";
-        try {
-            Claims claims = getClaimsFromToken(token);
-            email = claims.getSubject();
-        } catch (Exception e) {
-            email = null;
-            log.info("error:{}", "can not find email from token");
+        String identifier = getSubjectFromToken(token);
+        if (identifier == null) {
+            return null;
         }
-        return userMapper.findUserType(email);
+        // Try to find user by email first
+        User user = userMapper.findByEmail(identifier);
+        if (user == null) {
+            // If not found by email, try by open_id
+            user = userMapper.findByOpenId(identifier);
+        }
+        return user != null ? user.getUserType() : null;
     }
 
     //从token中获取荷载
@@ -89,7 +115,7 @@ public class JwtUtil {
 //            System.out.println("claims的exp:" + claims.getExpiration());
         } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | SignatureException |
                  IllegalArgumentException e) {
-            log.info("###token error###");
+            log.info("###token error###", e);
         }
         return claims;
     }
@@ -118,10 +144,13 @@ public class JwtUtil {
         //判断token是否过期
         //判断token是否和userDetails中的一致
         //我们要做的 是先获取用户邮箱
-        String email = getEmailFromToken(token);
-//        System.out.println("validateToken   " + email + "   ----------------");
-        String storedToken = iGlobalCache.getToken(email);
-//        System.out.println("email:" + email);
+        String identifier = getSubjectFromToken(token);
+//        System.out.println("validateToken   " + identifier + "   ----------------");
+        if (identifier == null) { // If subject itself is null, it's invalid
+            return false;
+        }
+        String storedToken = iGlobalCache.getToken(identifier);
+//        System.out.println("identifier:" + identifier);
 //        System.out.println("token:" + token);
 //        System.out.println("storedToken:" + storedToken);
 //        System.out.println(storedToken != null);
@@ -136,43 +165,56 @@ public class JwtUtil {
     //判断token是否失效
     private boolean isNotTokenExpired(String token) {
         Date expiredDate = getExpiredDateFromToken(token);
-        return !expiredDate.before(new Date());
+        return expiredDate != null && !expiredDate.before(new Date());
     }
 
     //从荷载中获取时间
     private Date getExpiredDateFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        return claims.getExpiration();
+        return claims != null ? claims.getExpiration() : null;
     }
 
     //判断token是否可以被刷新
     //过期（销毁）就可以
     public boolean canBeRefreshed(String token) {
-        return isNotTokenExpired(token);
+        // Token can be refreshed if it's expired but still valid structurally
+        // or if it's not expired yet
+        Date expiredDate = getExpiredDateFromToken(token);
+        return expiredDate != null && expiredDate.before(new Date()); // Token is expired but can be refreshed if it was structurally valid
     }
 
     //刷新token
     public String refreshToken(String token) throws Exception {
         if (!canBeRefreshed(token)) {
-            // 直接返回空字符串
-            return "";
+            // If token is still valid (not expired), cannot refresh directly.
+            // Or if it's structurally invalid (getClaimsFromToken returns null)
+            throw new Exception("Token cannot be refreshed. It might be expired or structurally invalid.");
         }
+
         Claims claims = getClaimsFromToken(token);
+        if (claims == null) {
+            throw new Exception("Invalid token structure for refresh.");
+        }
+
+        // 获取旧的identifier
+        String oldIdentifier = claims.getSubject();
+        if (oldIdentifier == null) {
+            throw new Exception("Old token has no subject identifier.");
+        }
+
         // 修改为当前时间
         claims.put(Claims.ISSUED_AT, new Date());
         String refreshedToken = createToken(claims);
 
-        // 获取用户名（假设用户名存在于 Token 的 claims 中）
-        String email = claims.getSubject();
-
         // 删除 Redis 中之前的 Token
-        String oldToken = iGlobalCache.getToken(email);
-        if (oldToken == null) {
-            throw new Exception("原token不存在!");
+        String oldStoredToken = iGlobalCache.getToken(oldIdentifier);
+        if (oldStoredToken == null) {
+            throw new Exception("Original token not found in Redis for refresh.");
         }
-        iGlobalCache.deleteToken(email);
+        iGlobalCache.deleteToken(oldIdentifier);
+
         // 更新 Redis 中的 Token
-        iGlobalCache.saveToken(email, refreshedToken, expiration);
+        iGlobalCache.saveToken(oldIdentifier, refreshedToken, expiration);
 
         return refreshedToken;
     }

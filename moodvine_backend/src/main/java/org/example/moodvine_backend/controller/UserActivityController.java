@@ -23,7 +23,7 @@ public class UserActivityController {
 
     @GetMapping("/getAllActivities")
     public ResponseData getAllActivities(@CurrentUser User user){
-        return activityService.getUserActivities(user.getId());
+        return activityService.getAllActivitiesWithSignUpStatus(user.getId());
     }
 
 //    @GetMapping("/getAllActivities")
@@ -36,10 +36,10 @@ public class UserActivityController {
             @CurrentUser User user,
             @RequestBody Map<String,Integer> request
     ){
-        Integer userId = request.get("userId");
+//        Integer userId = request.get("userId");
         Integer activityId = request.get("activityId");
-        return activityService.signUpActivity(user.getId(),activityId);
 //        return activityService.signUpActivity(userId,activityId);
+       return activityService.signUpActivity(user.getId(),activityId);
     }
 
     @PostMapping("/clockIn")
@@ -73,6 +73,5 @@ public class UserActivityController {
         }
         return clockInActivityService.getClockIns(user.getId(), activityId);
 //        return clockInActivityService.getClockIns(userId, activityId);
-
     }
 }

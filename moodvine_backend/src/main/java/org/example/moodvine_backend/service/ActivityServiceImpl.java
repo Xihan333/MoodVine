@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityServiceImpl implements ActivityService{
@@ -74,5 +76,27 @@ public class ActivityServiceImpl implements ActivityService{
                 .msg("查询成功");
     }
 
+    @Override
+    public ResponseData getAllActivitiesWithSignUpStatus(Integer userId) {
+        // 获取所有活动
+        List<Activity> allActivities = activityMapper.findAllActivities();
+
+        // 获取用户已报名的活动ID集合
+        Set<Integer> signedUpActivityIds = isSignUpMapper.selectActivityIdByUserId(userId)
+                                                            .stream().collect(Collectors.toSet());
+
+        // 遍历所有活动，设置 isSignUp 标志
+        allActivities.forEach(activity -> {
+            activity.setIsSignUp(signedUpActivityIds.contains(activity.getId()));
+        });
+
+        // 构造响应
+        Map<String, Object> data = new HashMap<>();
+        data.put("activities", allActivities);
+
+        return ResponseData.ok()
+                .data(data)
+                .msg("查询成功");
+    }
 
 }
