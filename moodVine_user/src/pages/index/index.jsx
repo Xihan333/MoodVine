@@ -3,7 +3,7 @@ import { Button } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
-// import { useSelector, useDispatch } from 'react-redux';
+
 import MoodCalendar from '../../components/MoodCalendar'
 import dataString from '../../components/temp'
 import jar from '../../assets/jar.png'
@@ -16,14 +16,7 @@ import bg4 from '../../assets/moodpaper/purple.png'
 import 'normalize.css'
 import './index.scss'
 import { setScrip } from '../../store/features/scripSlice';
-
-// const dispatch = useDispatch();
-// const handleDetail = (item) => {
-//     dispatch(setScrip(item));
-//     Taro.navigateTo({
-//       url: '/pages/activityDetail/activityDetail',
-//     });
-//   };
+import { useSelector, useDispatch } from 'react-redux';
 
 const Scrips = () => {
    // 定义固定顺序的四张背景图
@@ -45,6 +38,14 @@ const Scrips = () => {
     { 'mood': 4, 'sentance': '明天会更好', 'time': '5-29' },
     { 'mood': 5, 'sentance': '明天会更好', 'time': '5-29' },
   ])
+
+  const dispatch = useDispatch();
+  const handleDetail = (item) => {
+      dispatch(setScrip(item));
+      Taro.navigateTo({
+        url: '/pages/scripDetail/scripDetail',
+      });
+    };
 
   const itemList = data.map((item,index) => {
     const bgIndex = index % 4;
@@ -77,15 +78,15 @@ const Scrips = () => {
 export default function Index() {
 
   const [loading, setLoading] = useState(false)
-  const [data, setData] = useState(null);
+  const [calendarData, setCalendarData] = useState(null);
   const [moodTag,setTag] = useState('焰光的夜行者111\n桂枝冠冕')
 
   useLoad(() => {
     const parsedData = JSON.parse(dataString);
-    setData(parsedData); // 模拟异步加载
+    setCalendarData(parsedData); // 模拟异步加载
   });
 
-  if (!data) return <View>Loading...</View>;
+  if (!calendarData) return <View>Loading...</View>;
 
   return (
     <View className='index'>
@@ -95,7 +96,7 @@ export default function Index() {
             { moodTag } 
           </Text>
       </View>
-      <MoodCalendar className="calendar" contributions={data}/>
+      <MoodCalendar className="calendar" contributions={calendarData}/>
       <Image className='add_btn' src={add_btn} onClick={() => Taro.switchTab({ url: '/pages/diaryEditor/diaryEditor'})}/>
       <View className='Note'>
         <Text className='title'>纸条集</Text>

@@ -36,6 +36,10 @@ const Scrips = ({ data }) => {
     )
   }
 
+  const handleDetail = (item) => {
+    
+  }
+
   const itemList = data.map((item,index) => {
     const bgIndex = index % 4;
     const background = backgroundImages[bgIndex];
