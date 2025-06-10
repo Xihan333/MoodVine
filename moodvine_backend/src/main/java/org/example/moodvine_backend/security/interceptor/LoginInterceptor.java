@@ -34,7 +34,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         String requestURI = request.getRequestURI();
         System.out.println(request.getMethod().toString());
 
-        if (requestURI.contains("/login")|| requestURI.contains("/adminLogin")) {
+        if (requestURI.contains("/login")|| requestURI.contains("/adminLogin") || requestURI.contains("/wxlogin")) {
             //System.out.println("login request! pass");
             return true;
         }
@@ -82,5 +82,3 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 在完成请求后执行的操作，可留空
     }
 }
-
-

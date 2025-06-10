@@ -1,5 +1,6 @@
 package org.example.moodvine_backend.service;
 
+import org.example.moodvine_backend.annotation.CurrentUser;
 import org.example.moodvine_backend.cache.IGlobalCache;
 import org.example.moodvine_backend.mapper.UserMapper;
 import org.example.moodvine_backend.model.DTO.LoginData;
@@ -60,23 +61,34 @@ public class UserService {
             String result = EntityUtils.toString(response.getEntity());
             Map<String, String> resultMap = parseJson(result);
             String openid = resultMap.get("openid");
-            if (openid != null) {
-                // 检查用户是否已注册
-                User user = userMapper.findByOpenId(openid);
-                if (user == null) {
-                    // 用户未注册，进行注册
-                    user = new User();
-                    user.setOpen_id(openid);
-                    userMapper.insert(user);
-                }
-                // 生成 JWT 令牌
-                String token = jwtUtil.generateToken(user.getEmail());
-                Map<String, String> responseData = new HashMap<>();
-                responseData.put("token", token);
-                return ResponseData.success(responseData);
-            } else {
+            String sessionKey = resultMap.get("session_key");
+            
+            if (openid == null) {
                 return ResponseData.failure(401, "微信登录失败");
             }
+
+            // 检查用户是否已注册
+            User user = userMapper.findByOpenId(openid);
+            if (user == null) {
+                // 用户未注册，创建新用户
+                user = new User();
+                user.setOpen_id(openid);
+                user.setUserType(UserType.USER); // 设置为普通用户
+                user.setScore(0); // 初始蜜罐值为0
+                user.setAvatar(""); // 设置默认头像
+                userMapper.insert(user);
+            }
+
+            // 生成 JWT 令牌
+            String token = jwtUtil.generateToken(user.getEmail());
+            
+            // 创建返回数据
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("token", token);
+            responseData.put("user", user);
+            responseData.put("isNewUser", user.getEmail() == null); // 如果是新用户，email为null
+            
+            return ResponseData.success(responseData);
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseData.failure(500, "服务器内部错误");
@@ -317,5 +329,19 @@ public class UserService {
     public ResponseData addScore(Integer userId, Integer addScore){
         userMapper.addScore(userId,addScore);
         return new ResponseData(200,"成功增加",null);
+    }
+
+    public ResponseData updateWxUserInfo(@CurrentUser User user, String nickName, String avatar, Gender gender) {
+        if (user == null) {
+            return ResponseData.failure(401, "用户未登录");
+        }
+
+        // 更新用户信息
+        user.setNickName(nickName);
+        user.setAvatar(avatar);
+        user.setGender(gender);
+        
+        userMapper.update(user);
+        return ResponseData.success(user);
     }
 }

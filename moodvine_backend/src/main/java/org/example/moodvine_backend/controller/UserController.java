@@ -4,6 +4,7 @@ import org.example.moodvine_backend.annotation.CurrentUser;
 import org.example.moodvine_backend.annotation.CustomParam;
 import org.example.moodvine_backend.model.DTO.LoginData;
 import org.example.moodvine_backend.model.DTO.RegisterData;
+import org.example.moodvine_backend.model.PO.Gender;
 import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.UserService;
@@ -43,6 +44,15 @@ public class UserController {
     @PostMapping("/adminLogin")
     public ResponseData adminLogin(@RequestBody LoginData loginData) {
         return userService.adminLogin(loginData);
+    }
+
+    @PostMapping("/updateWxUserInfo")
+    public ResponseData updateWxUserInfo(
+            @CurrentUser User user,
+            @CustomParam String nickName,
+            @CustomParam String avatar,
+            @CustomParam String gender) {
+        return userService.updateWxUserInfo(user, nickName, avatar, Gender.valueOf(gender));
     }
 
 //    @PostMapping("/login")
