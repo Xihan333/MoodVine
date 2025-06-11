@@ -36,7 +36,8 @@ public class UserController {
     }
 
     @PostMapping("/addScore")
-    public ResponseData addScore(@CurrentUser User user,@CustomParam Integer addScore) {
+    public ResponseData addScore(@CurrentUser User user , @RequestBody Map<String, Integer> request) {
+        Integer addScore = request.get("addScore");
         return userService.addScore(user.getId(),addScore);
     }
 

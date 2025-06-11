@@ -1,6 +1,8 @@
 package org.example.moodvine_backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.example.moodvine_backend.model.PO.Reward;
 import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.PO.UserType;
 import org.example.moodvine_backend.model.PO.Gender;
@@ -38,6 +40,12 @@ public interface UserMapper extends BaseMapper<User> {
     @Update("update user set nick_name=#{nickName}, avatar=#{avatar} where id=#{id}")
     void update(User user);
 
+    @Select("SELECT * FROM user where id=#{user_id}")
+    User findUserById(Integer user_id);
+
     @Update("update user set score = score + #{addScore} where id=#{userId}")
-    void addScore(Integer userId, Integer addScore);
+    void addScore(@Param("userId") Integer userId, @Param("addScore") Integer addScore);
+
+    @Update("update user set score = score - #{point} where id=#{userId}")
+    void consumeScore(@Param("userId") Integer userId, @Param("point") Integer point);
 }

@@ -12,10 +12,14 @@ import java.util.List;
 public interface IsHadRewardsMapper extends BaseMapper<IsHadRewards> {
 
     // 根据用户ID查询所有的信纸
-    @Select("SELECT * FROM isHadRewards WHERE user_id = #{userId}")
-    List<IsHadRewards> getRewardByUserId(Integer userId);
+    @Select("SELECT reward_id FROM isHadRewards WHERE user_id = #{userId}")
+    List<Integer> getRewardByUserId(Integer userId);
 
     // 用户购买信纸
-    @Update("update isHadRewards set isHad = true where user_id=#{userId} and reward_id=#{rewardId}")
+    @Update("INSERT INTO isHadRewards (user_id, reward_id) VALUES (#{userId}, #{rewardId}) ON DUPLICATE KEY UPDATE user_id = user_id")
     void buyReward(Integer userId, Integer rewardId);
+
+    // 根据用户ID和奖励ID查询用户是否拥有该奖励
+    @Select("SELECT EXISTS(SELECT 1 FROM isHadRewards WHERE user_id = #{userId} AND reward_id = #{rewardId} LIMIT 1)")
+    Boolean isUserHasReward(Integer userId, Integer rewardId);
 }
