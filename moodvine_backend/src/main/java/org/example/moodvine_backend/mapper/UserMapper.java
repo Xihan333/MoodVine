@@ -35,7 +35,7 @@ public interface UserMapper extends BaseMapper<User> {
     //@Update("truncate table feedback")  //清除feedback数据库内容
     //void clear();
 
-    @Update("update user set nick_name=#{nickName}, avatar=#{avatar}, sex=#{gender} where id=#{id}")
+    @Update("update user set nick_name=#{nickName}, avatar=#{avatar}, gender=#{gender} where id=#{id}")
     void update(User user);
 
     @Update("update user set score = score + #{addScore} where id=#{userId}")
