@@ -53,8 +53,22 @@ public class UserController {
 
     @PostMapping("/updateWxUserInfo")
     public ResponseData updateWxUserInfo(
-            @CurrentUser User user, @RequestBody WxUserInfoDTO userInfo) {
-        return userService.updateWxUserInfo(user, userInfo.getNickName(), userInfo.getAvatar(), Gender.valueOf(userInfo.getGender()));
+            @CurrentUser User user,
+            @RequestBody WxUserInfoDTO userInfo  // 使用单一对象接收请求体
+    ) {
+        // 处理性别可能为空的情况
+//        Gender gender = null;
+//        if (userInfo.getGender() != null && !userInfo.getGender().isEmpty()) {
+//            try {
+//                gender = Gender.valueOf(userInfo.getGender().toUpperCase());
+//            } catch (IllegalArgumentException e) {
+//                return ResponseData.failure(400, "无效的性别参数");
+//            }
+//        }
+        return userService.updateWxUserInfo(
+                user,
+                userInfo.getNickName(),
+                userInfo.getAvatar());
     }
 
     @PostMapping("/getMoods")

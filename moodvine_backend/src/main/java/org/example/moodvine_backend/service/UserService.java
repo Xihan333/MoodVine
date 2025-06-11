@@ -340,15 +340,18 @@ public class UserService {
         return new ResponseData(200,"成功增加",null);
     }
 
-    public ResponseData updateWxUserInfo(@CurrentUser User user, String nickName, String avatar, Gender gender) {
+    public ResponseData updateWxUserInfo(
+            @CurrentUser User user,
+            String nickName,
+            String avatar
+    ) {
         if (user == null) {
             return ResponseData.failure(401, "用户未登录");
         }
-        // 更新用户信息
-        user.setNickName(nickName);
-        user.setAvatar(avatar);
-        user.setGender(gender);
-        
+
+        if (nickName != null) user.setNickName(nickName);
+        if (avatar != null) user.setAvatar(avatar);
+
         userMapper.update(user);
         return ResponseData.success(user);
     }
