@@ -78,14 +78,14 @@ public class UserService {
                 if (user == null) {
                 // 用户未注册，创建新用户
                     user = new User();
-                user.setOpenId(openid);
-                user.setUserType(UserType.USER); 
-                user.setScore(0); // 初始蜜罐值为0
-                user.setAvatar(""); // 设置默认头像
-                user.setNickName(""); // 设置默认昵称
+                    user.setOpenId(openid);
+                    user.setUserType(UserType.USER);
+                    user.setScore(0); // 初始蜜罐值为0
+                    user.setAvatar(""); // 设置默认头像
+                    user.setNickName(""); // 设置默认昵称
                     userMapper.insert(user);
-                // 重新从数据库获取用户，确保所有字段都已加载
-                user = userMapper.findByOpenId(openid);
+                    // 重新从数据库获取用户，确保所有字段都已加载
+                    user = userMapper.findByOpenId(openid);
                 }
 
                 // 生成 JWT 令牌
@@ -344,7 +344,6 @@ public class UserService {
         if (user == null) {
             return ResponseData.failure(401, "用户未登录");
         }
-
         // 更新用户信息
         user.setNickName(nickName);
         user.setAvatar(avatar);

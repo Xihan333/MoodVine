@@ -8,6 +8,7 @@ import org.example.moodvine_backend.model.PO.Gender;
 import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.UserService;
+import org.example.moodvine_backend.service.MoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,9 @@ import java.util.Map;
 public class UserController {
     @Autowired
     UserService userService;
+
+    @Autowired
+    MoodService moodService;
 
     @PostMapping("/hello")
     public ResponseData hello() {
@@ -55,6 +59,17 @@ public class UserController {
         return userService.updateWxUserInfo(user, nickName, avatar, Gender.valueOf(gender));
     }
 
+    @PostMapping("/getMoods")
+    public ResponseData getMoods(@CurrentUser User user,@RequestBody Map<String, String> requestData) {
+        String date = requestData.get("date");
+        if (user == null){
+            return ResponseData.failure(401,"用户未登录");
+        }
+        if (date == null || date.isEmpty()){
+            return ResponseData.failure(400,"月份参数不能为空");
+        }
+        return moodService.getMoodsByMonth(user.getId(),date);
+    }
 //    @PostMapping("/login")
 //    public ResponseData login(@RequestBody LoginData loginData) {
 //        return userService.login(loginData);

@@ -37,7 +37,7 @@ public class JwtUtil {
     //@Value("${jwt.data.expiration}")
     private Long expiration = 604800L;
 
-    // 根据用户对象生成token (新方法)
+    // 根据用户对象生成token new！！！！
     public String generateToken(User user) {
         HashMap<String, Object> claims = new HashMap<>();
         String identifier = null;
@@ -60,10 +60,8 @@ public class JwtUtil {
         return token;
     }
 
-    // 旧的根据email生成token的方法，现在我们倾向于使用generateToken(User user)
-    // 保留此方法以避免对现有代码的破坏，但建议逐渐替换
+    // 旧的根据email生成token的方法
     public String generateToken(String email) {
-        // For backward compatibility, assumes email is the subject
         HashMap<String, Object> claims = new HashMap<>();
         claims.put(Claims.SUBJECT, email);
         claims.put(Claims.ISSUED_AT, new Date());
@@ -91,10 +89,8 @@ public class JwtUtil {
         if (identifier == null) {
             return null;
         }
-        // Try to find user by email first
         User user = userMapper.findByEmail(identifier);
         if (user == null) {
-            // If not found by email, try by open_id
             user = userMapper.findByOpenId(identifier);
         }
         return user != null ? user.getUserType() : null;
@@ -146,7 +142,7 @@ public class JwtUtil {
         //我们要做的 是先获取用户邮箱
         String identifier = getSubjectFromToken(token);
 //        System.out.println("validateToken   " + identifier + "   ----------------");
-        if (identifier == null) { // If subject itself is null, it's invalid
+        if (identifier == null) {
             return false;
         }
         String storedToken = iGlobalCache.getToken(identifier);
@@ -175,10 +171,7 @@ public class JwtUtil {
     }
 
     //判断token是否可以被刷新
-    //过期（销毁）就可以
     public boolean canBeRefreshed(String token) {
-        // Token can be refreshed if it's expired but still valid structurally
-        // or if it's not expired yet
         Date expiredDate = getExpiredDateFromToken(token);
         return expiredDate != null && expiredDate.before(new Date()); // Token is expired but can be refreshed if it was structurally valid
     }
@@ -186,8 +179,7 @@ public class JwtUtil {
     //刷新token
     public String refreshToken(String token) throws Exception {
         if (!canBeRefreshed(token)) {
-            // If token is still valid (not expired), cannot refresh directly.
-            // Or if it's structurally invalid (getClaimsFromToken returns null)
+
             throw new Exception("Token cannot be refreshed. It might be expired or structurally invalid.");
         }
 
