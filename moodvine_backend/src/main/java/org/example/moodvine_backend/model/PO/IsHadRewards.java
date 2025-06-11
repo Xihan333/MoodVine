@@ -19,5 +19,5 @@ public class IsHadRewards {
 
     private Integer reward_id;
 
-    private Boolean isHadReward;
+
 }

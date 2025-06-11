@@ -10,7 +10,9 @@ import org.example.moodvine_backend.service.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/reward")
+import java.util.Map;
+
+@RequestMapping("/user/reward")
 @RestController
 public class RewardsController {
     @Autowired
@@ -21,12 +23,13 @@ public class RewardsController {
 
     @GetMapping("/getAllRewards")
     public ResponseData getAllRewards(@CurrentUser User user) {
-        return isHadRewardsService.getALLRewardsByUserId(user);
+        return isHadRewardsService.getALLRewardsByUserId(user.getId());
     }
 
     @PostMapping("/redeemReward")
-    public ResponseData redeemReward(@CurrentUser User user, @CustomParam Integer rewardId) {
-        return isHadRewardsService.buyReward(user.getId(),rewardId);
+    public ResponseData redeemReward(@CurrentUser User user, @RequestBody Map<String, Integer> request) {
+        Integer rewardId = request.get("id");
+        return isHadRewardsService.buyReward(user.getId(), rewardId);
     }
 
 }

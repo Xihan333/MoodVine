@@ -30,6 +30,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import com.alibaba.fastjson.JSON;
@@ -337,7 +338,7 @@ public class UserService {
 //    }
     public ResponseData addScore(Integer userId, Integer addScore){
         userMapper.addScore(userId,addScore);
-        return new ResponseData(200,"成功增加",null);
+        return ResponseData.ok().msg("成功增加").data(Collections.emptyMap());
     }
 
     public ResponseData updateWxUserInfo(
