@@ -83,6 +83,14 @@ public class UserController {
         }
         return moodService.getMoodsByMonth(user.getId(),date);
     }
+
+    @GetMapping("/getMoodCalendar")
+    public ResponseData getMoodCalendar(@CurrentUser User user) {
+        if (user == null){
+            return ResponseData.failure(401,"用户未登录");
+        }
+        return moodService.getMoodCalendar(user.getId());
+    }
 //    @PostMapping("/login")
 //    public ResponseData login(@RequestBody LoginData loginData) {
 //        return userService.login(loginData);
