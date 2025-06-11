@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZoneId;
 import java.util.Date;
 
 @Data
@@ -26,4 +27,16 @@ public class Mood {
 
     @TableField(typeHandler = MybatisEnumTypeHandler.class)
     private MoodType mood;
+
+    //时间戳
+    public long getDateTimestamp() {
+        if (date == null) return 0;
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+    }
+
 } 
