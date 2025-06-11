@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -50,8 +51,8 @@ public class MoodServiceImpl implements MoodService {
         }
 
         LocalDate today = LocalDate.now();
-        LocalDate startDate = today.minusMonths(4).withDayOfMonth(1);
-        LocalDate endDate = today.with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate endDate = today;
+        LocalDate startDate = endDate.minus(5, ChronoUnit.MONTHS);
 
         List<Mood> moods = moodMapper.findMoodByDateRange(userId, startDate, endDate);
 
@@ -61,7 +62,7 @@ public class MoodServiceImpl implements MoodService {
         ));
 
         List<Map<String,Object>> calendarData = new ArrayList<>();
-        for(LocalDate date = startDate;!date.isAfter(endDate);date=date.plusDays(1)) {
+        for(LocalDate date = endDate;!date.isBefore(startDate);date=date.minusDays(1)) {
             Map<String,Object> dayData = new HashMap<>();
 
             long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
