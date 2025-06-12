@@ -34,7 +34,6 @@ public class Activity {
 
     private Integer number;
 
-    private ActivityStatus status;
 
     @TableField(exist = false)
     private Boolean isSignUp;

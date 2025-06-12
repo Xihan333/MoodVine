@@ -2,6 +2,7 @@ package org.example.moodvine_backend.service;
 
 import org.example.moodvine_backend.mapper.ActivityMapper;
 import org.example.moodvine_backend.mapper.IsSignUpMapper;
+import org.example.moodvine_backend.model.DTO.ActivityDTO;
 import org.example.moodvine_backend.model.PO.Activity;
 import org.example.moodvine_backend.model.PO.IsSignUp;
 import org.example.moodvine_backend.model.VO.ActivityVO;
@@ -120,5 +121,28 @@ public class ActivityServiceImpl implements ActivityService{
         data.put("activities", activityVOs);
 
         return ResponseData.ok().data(data).msg("活动列表获取成功");
+    }
+
+    @Override
+    public ResponseData addActivity(ActivityDTO activityDTO) {
+        if (activityDTO.getStartTime().after(activityDTO.getFinishTime())) {
+            return ResponseData.failure(400, "结束时间不能早于开始时间");
+        }
+        Activity activity = new Activity();
+        activity.setName(activityDTO.getName());
+        activity.setDescription(activityDTO.getDescription());
+        activity.setPicture(activityDTO.getPicture());
+        activity.setStartTime(activityDTO.getStartTime());
+        activity.setFinishTime(activityDTO.getFinishTime());
+        activity.setNumber(0);
+
+        int result = activityMapper.insert(activity);
+        if (result > 0) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("activity", activity.getId());
+            return ResponseData.ok().msg("添加成功").data(data);
+        }else  {
+            return ResponseData.failure(500, "添加失败");
+        }
     }
 }
