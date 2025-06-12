@@ -4,6 +4,7 @@ import org.example.moodvine_backend.mapper.ActivityMapper;
 import org.example.moodvine_backend.mapper.IsSignUpMapper;
 import org.example.moodvine_backend.model.PO.Activity;
 import org.example.moodvine_backend.model.PO.IsSignUp;
+import org.example.moodvine_backend.model.VO.ActivityVO;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,4 +100,25 @@ public class ActivityServiceImpl implements ActivityService{
                 .msg("查询成功");
     }
 
+    @Override
+    public ResponseData getAllActivities(){
+        List<Activity> activities = activityMapper.findAllActivities();
+
+        List<ActivityVO> activityVOs = activities.stream().map(activity ->  {
+            ActivityVO activityVO = new ActivityVO();
+            activityVO.setId(activity.getId());
+            activityVO.setName(activity.getName());
+            activityVO.setDescription(activity.getDescription());
+            activityVO.setStartTime(activity.getStartTime());
+            activityVO.setFinishTime(activity.getFinishTime());
+            activityVO.setPicture(activity.getPicture());
+            activityVO.setNumber(activity.getNumber());
+            return activityVO;
+        }).collect(Collectors.toList());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("activities", activityVOs);
+
+        return ResponseData.ok().data(data).msg("活动列表获取成功");
+    }
 }

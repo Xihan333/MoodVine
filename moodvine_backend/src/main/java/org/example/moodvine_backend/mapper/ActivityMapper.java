@@ -19,8 +19,10 @@ public interface ActivityMapper extends BaseMapper<Activity> {
             "</foreach>" +
             "</script>")
     List<Activity> selectBatchIds(@Param("activityIds") List<Integer> activityIds);
+
     @Select("SELECT * FROM activity")
     List<Activity> findAllActivities();
+
     @Update("UPDATE activity SET number = number + 1 WHERE id = #{activityId}")
     int incrementParticipantNumber(@Param("activityId") Integer activityId);
 
