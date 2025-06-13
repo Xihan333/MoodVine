@@ -3,6 +3,7 @@ package org.example.moodvine_backend.service;
 import org.example.moodvine_backend.mapper.ActivityMapper;
 import org.example.moodvine_backend.mapper.IsSignUpMapper;
 import org.example.moodvine_backend.model.DTO.ActivityDTO;
+import org.example.moodvine_backend.model.DTO.EditActivityDTO;
 import org.example.moodvine_backend.model.PO.Activity;
 import org.example.moodvine_backend.model.PO.IsSignUp;
 import org.example.moodvine_backend.model.VO.ActivityVO;
@@ -143,6 +144,46 @@ public class ActivityServiceImpl implements ActivityService{
             return ResponseData.ok().msg("添加成功").data(data);
         }else  {
             return ResponseData.failure(500, "添加失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseData editActivity(EditActivityDTO editActivityDTO) {
+        if (editActivityDTO.getId() == null) {
+            return ResponseData.failure(400, "活动ID不能为空");
+        }
+        Activity activity = activityMapper.selectById(editActivityDTO.getId());
+        if (activity == null) {
+            return ResponseData.notFound().msg("活动不存在");
+        }
+        if (editActivityDTO.getStartTime() != null &&
+                editActivityDTO.getFinishTime() != null &&
+                editActivityDTO.getStartTime().after(editActivityDTO.getFinishTime())) {
+            return ResponseData.failure(400, "结束时间不能早于开始时间");
+        }
+
+        if (editActivityDTO.getName() != null) {
+            activity.setName(editActivityDTO.getName());
+        }
+        if (editActivityDTO.getDescription() != null) {
+            activity.setDescription(editActivityDTO.getDescription());
+        }
+        if (editActivityDTO.getPicture() != null) {
+            activity.setPicture(editActivityDTO.getPicture());
+        }
+        if (editActivityDTO.getStartTime() != null) {
+            activity.setStartTime(editActivityDTO.getStartTime());
+        }
+        if (editActivityDTO.getFinishTime() != null) {
+            activity.setFinishTime(editActivityDTO.getFinishTime());
+        }
+
+        int result = activityMapper.updateById(activity);
+        if (result > 0) {
+            return ResponseData.ok().msg("修改成功");
+        } else {
+            return ResponseData.failure(500, "修改失败");
         }
     }
 }

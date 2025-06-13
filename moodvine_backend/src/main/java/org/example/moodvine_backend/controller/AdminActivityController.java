@@ -2,6 +2,7 @@ package org.example.moodvine_backend.controller;
 
 
 import org.example.moodvine_backend.model.DTO.ActivityDTO;
+import org.example.moodvine_backend.model.DTO.EditActivityDTO;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,10 @@ public class AdminActivityController {
     @PostMapping("/add")
     public ResponseData addActivity(@RequestBody ActivityDTO activityDTO) {
         return activityService.addActivity(activityDTO);
+    }
+
+    @PostMapping("/edit")
+    public ResponseData editActivity(@RequestBody EditActivityDTO editActivityDTO) {
+        return activityService.editActivity(editActivityDTO);
     }
 }
