@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.moodvine_backend.annotation.CustomParam;
 import org.example.moodvine_backend.cache.RedisChatMemory;
 import org.example.moodvine_backend.model.DTO.ChatData;
+import org.example.moodvine_backend.model.DTO.ChatImageData;
+import org.example.moodvine_backend.model.DTO.ChatVoiceData;
 import org.example.moodvine_backend.model.PO.ChatSession;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.ChatService;
@@ -39,31 +41,19 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 @RequiredArgsConstructor
 public class ChatController {
 
-
-    private final ChatClient chatClient;
-    private final RedisChatMemory redisChatMemory;
     private final ChatService chatService;
 
 
     @PostMapping("/hello")
     public ResponseData hello() {
         System.out.println("------hello, user-------");
-        return new ResponseData(200, null, "ok");
+        return new ResponseData(200, "ok", "hello");
     }
 
     @Operation(summary = "流式回答聊天")
-    @GetMapping(value = "/ai/generateStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ChatResponse> generateStream(@RequestParam(value = "message") String message, @RequestParam String sessionId, @RequestParam String userId) {
-        Assert.notNull(message, "message不能为空");
-        Assert.notNull(userId, "userId不能为空");
-        // 默认生成一个会话
-        if (sessionId == null || sessionId.trim().isEmpty()) {
-            sessionId = UUID.randomUUID().toString();
-            ChatSession chatSession = new ChatSession().setSessionId(sessionId).setSessionName(message.length() >= 15 ? message.substring(0, 15) : message);
-            chatService.saveSession(chatSession, userId);
-        }
-        String finalSessionId = sessionId;
-        return chatClient.prompt().user(message).advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, finalSessionId).param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100)).stream().chatResponse();
+    @PostMapping(value = "/ai/generateStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ChatResponse> generateStream(@RequestBody ChatData chatData) {
+        return chatService.generateStream(chatData);
     }
 
     @Operation(summary = "获取聊天记录")
@@ -84,7 +74,17 @@ public class ChatController {
         return chatService.generate(chatData);
     }
 
+    @Operation(summary = "分析图片")
+    @PostMapping("/analyseImage")
+    public ResponseData analyseImage(@RequestBody ChatImageData chatImageData) {
+        return chatService.analyseImage(chatImageData);
+    }
 
-    
+    @Operation(summary = "分析语音")
+    @PostMapping("/analyseVoice")
+    public ResponseData analyseVoice(@RequestBody ChatVoiceData chatVoiceData) {
+        return chatService.analyseVoice(chatVoiceData);
+    }
+
 
 }
