@@ -118,6 +118,14 @@ public class UserController {
         return userService.updateUserInfo(user,nickName,avatar,gender,email,birthday);
     }
 
+    @GetMapping("/getWeeklyStatistics")
+    public ResponseData getWeeklyStatistics(@CurrentUser User user){
+        if (user == null){
+            return ResponseData.failure(401,"用户未登录");
+        }
+        return userService.getWeeklyStatistics(user.getId());
+    }
+
 
 //    @PostMapping("/login")
 //    public ResponseData login(@RequestBody LoginData loginData) {
