@@ -121,11 +121,11 @@ function ContributionCalendar({ contributions, className, ...rest }) {
     // 创建心情方格
     const level_color = [ 
       `#f0f0f0`, // level0 - 无数据
-      `#9BE9A8`, // level1
-      `#40C463`, // level2
-      `#30A14E`, // level3
-      `#216E39`, // level4
-      `#0F532D`  // level5
+      `#FFB880`, // level1
+      `#A9DB96`, // level2
+      `#AFE0FE`, // level3
+      `#FFA4B5`, // level4
+      `#FD6F61`  // level5
     ];
     
     tiles.push(

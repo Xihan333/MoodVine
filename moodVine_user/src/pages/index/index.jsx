@@ -16,6 +16,8 @@ import cartoon from '../../assets/cute.png'
 
 import 'normalize.css'
 import './index.scss'
+import request from '../../utils/request'
+
 import { setScrip } from '../../store/features/scripSlice';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -77,25 +79,20 @@ const Scrips = () => {
 }
 const getWxCode = async () => {
   const { code } = await Taro.login();
-  return code; // 示例： "023D6w0w3bJYQU2ic30w3TZABC0D6w0K"
+  return code; 
 };
 
 const handleLogin = async () => {
   try {
     const code = await getWxCode();
     console.log(code)
-    const res = await Taro.request({
-      url: 'http://localhost:2025/user/wxlogin', // 替换为实际接口地址
-      method: 'POST',
-      data: { code },
-      header: { 'Content-Type': 'application/json' }
-    });
+    const res = await request.post('/user/wxlogin', { code });
     console.log(res.data)
 
     if (res.data.code === 200) {
-      const { token, userInfo } = res.data; // 假设返回 token 和用户数据
+      const { token, user } = res.data.data; // 假设返回 token 和用户数据
       Taro.setStorageSync('token', token); // 存储 token
-      Taro.setStorageSync('userInfo', userInfo); // 存储用户信息
+      Taro.setStorageSync('userInfo', user); // 存储用户信息
       Taro.showToast({ title: '登录成功', icon: 'success' });
     } else {
       Taro.showToast({ title: '登录失败', icon: 'none' });
@@ -105,16 +102,37 @@ const handleLogin = async () => {
   }
 };
 
+
 export default function Index() {
 
   const [loading, setLoading] = useState(false)
   const [calendarData, setCalendarData] = useState(null);
-  const [moodTag,setTag] = useState('焰光的夜行者111\n桂枝冠冕')
+  const [moodTag,setTag] = useState('情感细腻的观察者\n文思泉涌的麻花')
+
+  const getMoodTag = async() => {
+  const res = await request.get('/user/tab/getTabs')
+  var tag = ''
+  if (res.data.code === 200) {
+    // 提取content并拼接为字符串
+    console.log(res.data.data)
+    tag = res.data.data.map(item => item.content).join('\n');
+  }
+  setTag(tag); // 确保有返回值
+}
+
+const getCalendar = async() => {
+  const res = await request.get('/user/getMoodCalendar')
+  if ( res.data.code == 200 ) {
+    console.log(res.data.data)
+    setCalendarData(res.data.data)
+  }
+}
 
   useLoad(() => {
-    const parsedData = JSON.parse(dataString);
-    setCalendarData(parsedData); // 模拟异步加载
-
+    // const parsedData = JSON.parse(dataString);
+    // setCalendarData(parsedData); // 模拟异步加载
+    getCalendar()
+    getMoodTag()
   });
 
   if (!calendarData) return <View>Loading...</View>;
