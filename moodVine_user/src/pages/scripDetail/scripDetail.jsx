@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import 'normalize.css'
 import './scripDetail.scss'
+import request from '../../utils/request'
 
 import bgcard from '../../assets/moodpaper/bigpaper.png'
 
@@ -38,15 +39,27 @@ const scripDetail = () => {
   const [loading, setLoading] = useState(false)
 
   const scripData = useSelector((state) => state.scrip);
+  console.log(scripData)
   const [data, setData] = useState({
+    'id': scripData.id,
     'mood': scripData.mood,
-    'sentance': scripData.sentance,
+    'sentence': scripData.sentence,
     'content': "[{\"sender\":\"user\",\"type\":\"text\",\"content\":\"Any good travel spots?\"},{\"sender\":\"other\",\"type\":\"text\",\"content\":\"Try Kyoto for temples!\"},{\"sender\":\"user\",\"type\":\"image\",\"content\":\"../../assets/reward0.jpg\"}]"
   })
 
   const [messages, setMessages] = useState([]);
 
+  const getInitData = async() => {
+    const res = await request.post('/user/scrip/getScripDetail',{ 'id': scripData.id })
+    console.log(res.data)
+
+    if ( res.data.code == 200 ) {
+      setData(res.data.data)
+    }
+  }
+
   useLoad(() => {
+    getInitData()
     console.log("已加载Redux状态:", data); 
     try {
         // 安全解析JSON字符串
@@ -67,7 +80,7 @@ const scripDetail = () => {
               className="scrip-card"
               style={{ backgroundImage: `url(${bgcard})` }}
             >
-                <Text className="scrip-content">{scripData.sentance}</Text>
+                <Text className="scrip-content">{scripData.sentence}</Text>
             </View>
             <View className="title-card">
                 <Text className="title">————聊愈回忆————</Text>

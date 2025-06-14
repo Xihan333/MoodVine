@@ -1,6 +1,7 @@
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useState, useEffect } from 'react'
+import { useLoad } from '@tarojs/taro'
 
 import { Search, Toast, Empty } from "@taroify/core"
 import CustomSearch from '../../components/CustomSearch/CustomSearch'
@@ -12,9 +13,12 @@ import bg4 from '../../assets/moodpaper/purple.png'
 
 import 'normalize.css'
 import './moreScrips.scss'
+import request from '../../utils/request'
 import { setScrip } from '../../store/features/scripSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
 const Scrips = ({ data }) => {
+
    // 定义固定顺序的四张背景图
   const backgroundImages = [bg1, bg2, bg3, bg4];
   
@@ -36,9 +40,13 @@ const Scrips = ({ data }) => {
     )
   }
 
+  const dispatch = useDispatch();
   const handleDetail = (item) => {
-    
-  }
+      dispatch(setScrip(item));
+      Taro.navigateTo({
+        url: '/pages/scripDetail/scripDetail',
+      });
+    };
 
   const itemList = data.map((item,index) => {
     const bgIndex = index % 4;
@@ -55,7 +63,7 @@ const Scrips = ({ data }) => {
         onClick={()=>handleDetail(item)}
       >
         <Image className='mood' src={moodIcon} />
-        <Text className="sentence">{item.sentance}</Text>
+        <Text className="sentence">{item.sentence}</Text>
         <Text className='time'>{ item.time }</Text>
       </View>
     );
@@ -69,16 +77,33 @@ const Scrips = ({ data }) => {
 }
 
 const MoreScrips = () => {
-  const [allData] = useState([
-        { 'mood': 1, 'sentance': '明天会更好', 'time': '5-29' },
-        { 'mood': 2, 'sentance': '今天天气不错，适合去公园散步', 'time': '5-30' },
-        { 'mood': 3, 'sentance': '最近工作压力有点大', 'time': '5-31' },
-        { 'mood': 4, 'sentance': '完成了一个大项目，很有成就感', 'time': '6-01' },
-        { 'mood': 5, 'sentance': '需要学习更多新知识', 'time': '6-02' },
-        { 'mood': 1, 'sentance': '和家人一起吃了美味的晚餐', 'time': '6-03' },
-        { 'mood': 2, 'sentance': '读了一本很好的书', 'time': '6-04' },
-        { 'mood': 3, 'sentance': '计划周末去爬山', 'time': '6-05' },
+  const [allData,setScripData] = useState([
+        { 'id': 1, 'mood': 1, 'sentence': '明天会更好', 'time': '5-29' },
+        { 'id': 1, 'mood': 2, 'sentence': '今天天气不错，适合去公园散步', 'time': '5-30' },
+        { 'id': 1, 'mood': 3, 'sentence': '最近工作压力有点大', 'time': '5-31' },
+        { 'id': 1, 'mood': 4, 'sentence': '完成了一个大项目，很有成就感', 'time': '6-01' },
+        { 'id': 1, 'mood': 5, 'sentence': '需要学习更多新知识', 'time': '6-02' },
+        { 'id': 1, 'mood': 1, 'sentence': '和家人一起吃了美味的晚餐', 'time': '6-03' },
+        { 'id': 1, 'mood': 2, 'sentence': '读了一本很好的书', 'time': '6-04' },
+        { 'id': 1, 'mood': 3, 'sentence': '计划周末去爬山', 'time': '6-05' },
   ]);
+
+  const fetchAllData = async() => {
+    const scripRes = await request.get('/user/scrip/getAllScrips')
+    // 处理纸条数据
+      if (scripRes.data?.code === 200) {
+        setScripData(Array.isArray(scripRes.data.data) 
+          ? scripRes.data.data 
+          : []);
+      } else {
+        setScripData([]);
+        console.warn('纸条数据异常:', scripRes);
+      }
+  }
+
+  useLoad(() => {
+    fetchAllData();
+  });
   
   // 过滤后的数据
   const [filteredData, setFilteredData] = useState(allData);
@@ -100,7 +125,7 @@ const MoreScrips = () => {
     const results = allData.filter(item => {
       // 搜索内容包括句子、心情和时间
       return (
-        item.sentance.toLowerCase().includes(searchKeyword) ||
+        item.sentence.toLowerCase().includes(searchKeyword) ||
         (item.time && item.time.toLowerCase().includes(searchKeyword)) ||
         (getMoodText(item.mood) && getMoodText(item.mood).includes(searchKeyword))
       );
