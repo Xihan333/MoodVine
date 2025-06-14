@@ -11,7 +11,7 @@ export default defineAppConfig({
     'pages/diaryList/diaryList',
     'pages/people/people',
     'pages/moodPage/moodPage',
-    'pages/vinePage/vinePage'
+    'pages/vinePage/vinePage',
     'pages/moreScrips/moreScrips',
     'pages/scripDetail/scripDetail',
     'pages/chatAI/chatAI',
