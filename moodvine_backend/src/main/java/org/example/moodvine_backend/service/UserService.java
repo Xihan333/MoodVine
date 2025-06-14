@@ -30,7 +30,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import com.alibaba.fastjson.JSON;
@@ -355,5 +357,46 @@ public class UserService {
 
         userMapper.update(user);
         return ResponseData.success(user);
+    }
+
+    public ResponseData getUserInfo(User user) {
+        if (user == null) {
+            return ResponseData.failure(401, "用户未登录");
+        }
+        Map<String, Object> data = new HashMap<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        data.put("nickname",user.getNickName());
+        data.put("gender",Integer.parseInt(user.getGender().getCode()));
+        if(user.getBirthday()!=null){
+            data.put("birthday",sdf.format(user.getBirthday()));
+        }
+        else {
+            data.put("birthday",null);
+        }
+        data.put("avatar",user.getAvatar());
+        data.put("email",user.getEmail());
+        data.put("score",user.getScore());
+        return ResponseData.ok().data(data).msg("查询成功");
+    }
+
+    public ResponseData updateUserInfo(User user, String nickName, String avatar, Gender gender,String email, String birthday) {
+        if (user == null) {
+            return ResponseData.failure(401, "用户未登录");
+        }
+        if (nickName != null) user.setNickName(nickName);
+        if (avatar != null) user.setAvatar(avatar);
+        if (gender != null) user.setGender(gender);
+        if (email != null) user.setEmail(email);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if (birthday != null) {
+            try {
+                Date date = sdf.parse(birthday);
+                user.setBirthday(date);
+            } catch (Exception e) {
+                return ResponseData.failure(400, "生日格式不正确，正确格式为 yyyy-MM-dd");
+            }
+        }
+        userMapper.updateUserInfo(user);
+        return ResponseData.ok().msg("修改成功").data(Collections.emptyMap());
     }
 }

@@ -135,7 +135,12 @@ const getCalendar = async() => {
     getMoodTag()
   });
 
-  if (!calendarData) return <View>Loading...</View>;
+  if (!calendarData) return (
+    <View>
+      Loading...
+      <Button onClick={handleLogin}>微信一键登录</Button>
+    </View>
+  );
 
   return (
     <View className='index'>
@@ -145,7 +150,6 @@ const getCalendar = async() => {
             { moodTag } 
           </Text>
       </View>
-      <Button onClick={handleLogin}>微信一键登录</Button>
       <MoodCalendar className="calendar" contributions={calendarData}/>
       <Image className='add_btn' src={add_btn} onClick={() => Taro.switchTab({ url: '/pages/diaryEditor/diaryEditor'})}/>
       <View className='Note'>
