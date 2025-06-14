@@ -27,7 +27,7 @@ public class ChatConfig {
     @Qualifier("chatAnalysisClient")
     public ChatClient chatAnalysisClient(OllamaChatModel ollamaChatModel) {
         return ChatClient.builder(ollamaChatModel)
-                .defaultSystem("请将以下对话总结为100字以内的第二人称回复，不要分点，保持自然流畅的疗愈语气，重点突出用户的核心困扰和AI建议的关键方法。要求总结中包含用户的重要觉察时刻，并保留AI疗愈师温暖支持的语调，结尾带有延续性。")
+                .defaultSystem("请将以下对话总结为一句话，不要分点，保持自然流畅的疗愈语气，重点突出用户的核心困扰和AI建议的关键方法。要求总结中包含用户的重要觉察时刻，并保留AI疗愈师温暖支持的语调，结尾带有延续性。")
                 .build();
     }
 
@@ -42,11 +42,11 @@ public class ChatConfig {
     }
 
     // 日记总结专用的ChatClient
-    @Bean
-    @Qualifier("diarySummaryClient")
-    public ChatClient diarySummaryClient(OllamaChatModel ollamaChatModel) {
-        return ChatClient.builder(ollamaChatModel)
-                .defaultSystem("你是一名专业的日记内容分析师，能够从用户的日记中提取关键事件、情感变化和主题。你需要用简洁的语言总结日记的主要内容，突出情感脉络和重要事件。总结控制在80字以内，以第二人称体现")
-                .build();
-    }
+//    @Bean
+//    @Qualifier("diarySummaryClient")
+//    public ChatClient diarySummaryClient(OllamaChatModel ollamaChatModel) {
+//        return ChatClient.builder(ollamaChatModel)
+//                .defaultSystem("你是一名专业的日记内容分析师，能够从用户的日记中提取关键事件、情感变化和主题。你需要用简洁的语言总结日记的主要内容，突出情感脉络和重要事件。总结控制在80字以内，以第二人称体现")
+//                .build();
+//    }
 }
