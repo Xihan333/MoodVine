@@ -1,4 +1,4 @@
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text, Image, Input } from '@tarojs/components'
 import { Button } from '@taroify/core'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
@@ -9,11 +9,11 @@ import './people.scss'
 
 const People = () => {
   const [showModal, setShowModal] = useState(false);
-  const [userInfo, setUserInfo] = useState({
+  const userInfo = {
     avatar: require('../../assets/reward0.jpg'),
     nickname: '笨蛋鱼鱼',
     bio: '个人简介...'
-  });
+  };
 
   const handleSave = () => {
     // 这里可以添加保存逻辑
@@ -24,9 +24,8 @@ const People = () => {
     setShowModal(false);
   };
 
-  const handleChange = (field, value) => {
-    setUserInfo(prev => ({...prev, [field]: value}));
-  };
+  const [nickname,setNickName] = useState( userInfo.nickname );
+  const [bio,setBio] = useState( userInfo.vio );
 
   return (
     <View>
@@ -59,10 +58,10 @@ const People = () => {
             
             <View className='form-group'>
               <Text className='form-label'>昵称</Text>
-              <input 
+              <Input 
                 className='form-input'
                 value={userInfo.nickname}
-                onChange={e => handleChange('nickname', e.target.value)}
+                onChange={(e) => setNickName(e.detail.value)}
                 placeholder='请输入昵称'
               />
             </View>
@@ -72,7 +71,7 @@ const People = () => {
               <textarea 
                 className='form-textarea'
                 value={userInfo.bio}
-                onChange={e => handleChange('bio', e.target.value)}
+                onChange={(e) => setBio(e.detail.value)}
                 placeholder='请输入个人简介'
               />
             </View>
