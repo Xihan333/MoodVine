@@ -12,21 +12,22 @@ import org.example.moodvine_backend.model.DTO.ChatVoiceData;
 import org.example.moodvine_backend.model.PO.ChatSession;
 import org.example.moodvine_backend.model.VO.ChatResponse;
 import org.example.moodvine_backend.model.VO.ResponseData;
+import org.example.moodvine_backend.utils.MultipartFileResource;
+import org.example.moodvine_backend.utils.UrlMultipartFile;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,17 +143,45 @@ public class ChatService {
         }
     }
 
+    private String callVoiceToTextService(MultipartFile voiceFile) throws IOException {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new MultipartFileResource(voiceFile));
+
+        // 发送请求
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "http://222.206.4.166:5000/ai/transcribe",
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode().is2xxSuccessful()) {
+            JsonNode json = new ObjectMapper().readTree(response.getBody());
+            return json.path("text").asText();
+        } else {
+            throw new RuntimeException("语音服务返回错误: " + response.getStatusCode());
+        }
+    }
+
 
     public ResponseData analyseImage(ChatImageData chatImageData) {
         String sessionId = chatImageData.getSessionId();
         String imageUrl = chatImageData.getImageUrl();
         String userId = chatImageData.getUserId();
 
-        String imageDescription = callImageAnalysisService(chatImageData.getImageUrl());
+        String imageDescription = callImageAnalysisService(imageUrl);
 
         System.out.println(imageDescription);
 
-        String message = "用户发送了一张图片，内容描述如下：" + imageDescription;
+        String message = "用户发送了一张图片，内容描述如下：\\n" + imageDescription;
 
         // 将图片描述作为消息传递给AI对话系统
         ChatData chatData = new ChatData(message, sessionId, userId);
@@ -162,9 +191,26 @@ public class ChatService {
 
     }
 
-//    public ResponseData analyseVoice(ChatVoiceData chatVoiceData) {
-//        String api = "http://222.206.4.166:5000/ai/transcribe";
-//
-//
-//    }
+    public ResponseData analyseVoice(ChatVoiceData chatVoiceData) {
+        try {
+            String sessionId = chatVoiceData.getSessionId();
+            String voiceUrl = chatVoiceData.getVoiceUrl();
+            String userId = chatVoiceData.getUserId();
+
+            MultipartFile voiceFile = new UrlMultipartFile(voiceUrl);
+
+            String transcribedText = callVoiceToTextService(voiceFile);
+
+            System.out.println("转化后的文本内容：" + transcribedText);
+
+            String message = "这是用户发送的语音转文字内容（英文表示语音的情绪），请根据内容直接给出回答：\\n" + transcribedText;
+
+            ChatData chatData = new ChatData(transcribedText, sessionId, userId);
+
+            // 调用已有的generate方法获取AI回复
+            return generate(chatData);
+        } catch (Exception e) {
+            return new ResponseData(500, "语音分析失败: " + e.getMessage(), null);
+        }
+    }
 }
