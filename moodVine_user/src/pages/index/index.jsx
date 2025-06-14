@@ -13,6 +13,7 @@ import bg2 from '../../assets/moodpaper/green.png'     // 难过背景
 import bg3 from '../../assets/moodpaper/pink.png'     // 生气背景
 import bg4 from '../../assets/moodpaper/purple.png' 
 import cartoon from '../../assets/cute.png'
+import diary from '../../assets/diary-icon.png'
 
 import 'normalize.css'
 import './index.scss'
@@ -144,6 +145,7 @@ const getCalendar = async() => {
     <View className='index'>
       <View className='header'>
           <Image className='jar-button' src={jar} onClick={() => Taro.switchTab({ url: '/pages/score/score'})}/>
+          <Image className='diary-list' src={diary} onClick={() => Taro.navigateTo({ url: '/pages/diaryList/diaryList'})}/>
           <Text className='mood-tag'>
             { moodTag } 
           </Text>
