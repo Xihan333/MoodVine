@@ -69,7 +69,7 @@ const DiaryEditor = () => {
       });
     }
   }
-
+  
   return (
     <View className='diary-editor-container'>
       {/* 主体部分 */}
@@ -106,17 +106,17 @@ const DiaryEditor = () => {
         <View className='image-upload-section'>
           {images.length > 0 && (
             <View className='uploaded-images'>
-              {images.map((img, index) => (
-                <View className='image-item' key={index}>
-                  <Image src={img} mode='aspectFill' className='uploaded-image' />
-                  <View 
-                    className='delete-btn' 
-                    onClick={() => handleDeleteImage(index)}
-                  >
-                    ×
-                  </View>
+            {images.map((img, index) => (
+              <View className='image-item' key={index}>
+                <Image src={img} mode='aspectFill' className='uploaded-image' />
+                <View 
+                  className='delete-btn' 
+                  onClick={() => handleDeleteImage(index)}
+                >
+                  ×
                 </View>
-              ))}
+              </View>
+            ))}
             </View>
           )}
           

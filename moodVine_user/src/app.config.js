@@ -10,6 +10,8 @@ export default defineAppConfig({
     'pages/diaryEditor/diaryEditor',
     'pages/diaryList/diaryList',
     'pages/people/people',
+    'pages/moodPage/moodPage',
+    'pages/vinePage/vinePage'
     'pages/moreScrips/moreScrips',
     'pages/scripDetail/scripDetail',
     'pages/chatAI/chatAI',
@@ -34,13 +36,13 @@ export default defineAppConfig({
         selectedIconPath: './assets/homepage_fill.png', // 选中图标
       },
       {
-        pagePath: 'pages/score/score',
+        // pagePath: 'pages/score/score',
+        pagePath: 'pages/vinePage/vinePage',
         text: '蜜罐',
         iconPath: './assets/coupons.png',
         selectedIconPath: './assets/coupons_fill.png',
       },
       {
-        // pagePath: 'pages/activityList/activityList',
         pagePath: 'pages/diaryEditor/diaryEditor',
         text: '活动',
         iconPath: './assets/activity.png',

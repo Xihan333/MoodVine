@@ -40,6 +40,9 @@ public interface UserMapper extends BaseMapper<User> {
     @Update("update user set nick_name=#{nickName}, avatar=#{avatar} where id=#{id}")
     void update(User user);
 
+    @Update("update user set nick_name=#{nickName}, avatar=#{avatar}, birthday=#{birthday} , email=#{email},gender=#{gender} where id=#{id}")
+    void updateUserInfo(User user);
+
     @Select("SELECT * FROM user where id=#{user_id}")
     User findUserById(Integer user_id);
 

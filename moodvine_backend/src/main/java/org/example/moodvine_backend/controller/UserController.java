@@ -13,6 +13,8 @@ import org.example.moodvine_backend.service.MoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
 import java.util.Map;
 
 @RequestMapping("/user")
@@ -91,6 +93,32 @@ public class UserController {
         }
         return moodService.getMoodCalendar(user.getId());
     }
+
+    @GetMapping("/getUserInfo")
+    public ResponseData getUserInfo(@CurrentUser User user) {
+        return userService.getUserInfo(user);
+    }
+
+    @PostMapping("/updateUserInfo")
+    public ResponseData updateUserInfo(@CurrentUser User user, @RequestBody Map<String, Object> requestData){
+        String nickName = (String) requestData.get("nickname");
+        System.out.println(nickName);
+        String avatar = (String) requestData.get("avatar");
+        String code = (String) requestData.get("gender");
+        Gender gender = null;
+        if (code != null && !code.isEmpty()) {
+            try {
+                gender = Gender.fromCode(code);
+            } catch (IllegalArgumentException e) {
+                return ResponseData.failure(400, "无效的性别参数");
+            }
+        }
+        String email = (String) requestData.get("email");
+        String birthday = (String) requestData.get("birthday");
+        return userService.updateUserInfo(user,nickName,avatar,gender,email,birthday);
+    }
+
+
 //    @PostMapping("/login")
 //    public ResponseData login(@RequestBody LoginData loginData) {
 //        return userService.login(loginData);
