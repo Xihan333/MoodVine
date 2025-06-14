@@ -1,14 +1,16 @@
 package org.example.moodvine_backend.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.example.moodvine_backend.model.PO.Diary;
 import org.example.moodvine_backend.model.PO.Scrip;
 
 import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface ScripMapper {
+public interface ScripMapper extends BaseMapper<Scrip> {
     // 查询所有纸条，按时间倒序排列
     @Select("SELECT * FROM scrip WHERE user_id = #{userId} ORDER BY time DESC")
     List<Scrip> getAllScrips(Integer userId);

@@ -16,6 +16,8 @@ import org.example.moodvine_backend.utils.MultipartFileResource;
 import org.example.moodvine_backend.utils.UrlMultipartFile;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -44,7 +46,10 @@ public class ChatService {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final RedisChatMemory redisChatMemory;
-    private final ChatClient chatClient;
+
+    @Autowired
+    @Qualifier("chatClient")
+    private ChatClient chatClient;
 
     public void saveSession(ChatSession chatSession, String userId) {
         String key = CHAT_SESSION_PREFIX + userId;
