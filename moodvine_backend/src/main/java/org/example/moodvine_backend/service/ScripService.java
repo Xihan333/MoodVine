@@ -3,9 +3,8 @@ package org.example.moodvine_backend.service;
 import lombok.RequiredArgsConstructor;
 import org.example.moodvine_backend.mapper.MoodMapper;
 import org.example.moodvine_backend.mapper.ScripMapper;
-import org.example.moodvine_backend.model.PO.Mood;
-import org.example.moodvine_backend.model.PO.MoodType;
-import org.example.moodvine_backend.model.PO.Scrip;
+import org.example.moodvine_backend.mapper.TabMapper;
+import org.example.moodvine_backend.model.PO.*;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +42,9 @@ public class ScripService {
 
     @Autowired
     private ChatClient labelAnalysisClient;
+
+    @Autowired
+    private TabMapper tabMapper;
 
     public ResponseData getAllScrips(Integer userId) {
         List<Scrip> scrips = scripMapper.getAllScrips(userId);
@@ -163,9 +165,15 @@ public class ScripService {
         newMood.setMood(moodType);
         moodMapper.insert(newMood);
 
+        tabMapper.deleteByUserAndDate(userId, today, Origin.fromCode("2"));
+
         // 标签label
-
-
+        Tab newTab = new Tab();
+        newTab.setUserId(userId);
+        newTab.setDate(today);
+        newTab.setContent(label);
+        newTab.setOrigin(Origin.fromCode("2"));
+        tabMapper.insert(newTab);
 
         return new ResponseData(200, "success", scrip);
     }

@@ -54,7 +54,7 @@ public class ChatConfig {
     @Qualifier("labelAnalysisClient")
     public ChatClient labelAnalysisClient(OllamaChatModel ollamaChatModel) {
         return ChatClient.builder(ollamaChatModel)
-                .defaultSystem("你是一名专业的心理分析师，擅长从用户的文字中识别和分析情绪状态。你需要客观、专业地分析用户输入中表现出的用户个性标签，如：不甘平凡的奋斗者，仅输出一个用户标签，不添加任何额外解释或描述。")
+                .defaultSystem("你是一名专业的心理分析师，擅长从用户的文字中识别和分析情绪状态。你需要客观、专业地分析用户输入中表现出的用户个性标签，控制在7个字左右，仅输出一个用户标签，不添加任何额外解释或描述。")
                 .build();
     }
 

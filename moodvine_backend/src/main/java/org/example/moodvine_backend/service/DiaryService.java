@@ -2,9 +2,8 @@ package org.example.moodvine_backend.service;
 
 import org.example.moodvine_backend.mapper.DiaryMapper;
 import org.example.moodvine_backend.mapper.MoodMapper;
-import org.example.moodvine_backend.model.PO.Diary;
-import org.example.moodvine_backend.model.PO.Mood;
-import org.example.moodvine_backend.model.PO.MoodType;
+import org.example.moodvine_backend.mapper.TabMapper;
+import org.example.moodvine_backend.model.PO.*;
 import org.example.moodvine_backend.model.VO.DiaryVO;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.springframework.ai.chat.client.ChatClient;
@@ -30,6 +29,8 @@ public class DiaryService {
 
     @Autowired
     private ChatClient labelAnalysisClient;
+    @Autowired
+    private TabMapper tabMapper;
 
     public ResponseData getDiariesByMonth(Integer userId, Integer year, Integer month) {
         List<Diary> diaries = diaryMapper.getDiariesByMonth(userId, year, month);
@@ -121,6 +122,15 @@ public class DiaryService {
         System.out.println("---------------label-------------------");
         System.out.println(label);
         System.out.println("---------------label-------------------");
+
+        tabMapper.deleteByUserAndDate(userId, today, Origin.fromCode("1"));
+
+        Tab newTab = new Tab();
+        newTab.setUserId(userId);
+        newTab.setDate(today);
+        newTab.setContent(label);
+        newTab.setOrigin(Origin.fromCode("1"));
+        tabMapper.insert(newTab);
 
         return ResponseData.ok().msg("记录成功").data(Collections.emptyMap());
     }
