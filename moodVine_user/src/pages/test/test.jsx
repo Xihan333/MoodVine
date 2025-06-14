@@ -20,7 +20,7 @@ export default function Score() {
   return (
     <View>
       <Text onClick={hhh}>Count: {count}</Text>
-      <Button onClick={() => dispatch(increment())}>Increment</Button>
+      <Button onClick={() => dispatch(incrementByAmount(5))}>Increment</Button>
       <Button onClick={() => dispatch(decrement())}>Decrement</Button>
     </View>
   );

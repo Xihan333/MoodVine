@@ -3,6 +3,7 @@ import { Button } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
+import { setUserInfo,addScore } from '../../store/features/userSlice';
 
 import MoodCalendar from '../../components/MoodCalendar'
 import dataString from '../../components/temp'
@@ -93,6 +94,7 @@ const handleLogin = async () => {
       const { token, user } = res.data.data; // 假设返回 token 和用户数据
       Taro.setStorageSync('token', token); // 存储 token
       Taro.setStorageSync('userInfo', user); // 存储用户信息
+      Taro.setStorageSync('score', user.score); // 存储用户信息
       Taro.showToast({ title: '登录成功', icon: 'success' });
     } else {
       Taro.showToast({ title: '登录失败', icon: 'none' });
@@ -145,13 +147,13 @@ const getCalendar = async() => {
   return (
     <View className='index'>
       <View className='header'>
-          <Image className='jar-button' src={jar} onClick={() => Taro.switchTab({ url: '/pages/score/score'})}/>
+          <Image className='jar-button' src={jar} onClick={() => Taro.navigateTo({ url: '/pages/score/score'})}/>
           <Text className='mood-tag'>
             { moodTag } 
           </Text>
       </View>
       <MoodCalendar className="calendar" contributions={calendarData}/>
-      <Image className='add_btn' src={add_btn} onClick={() => Taro.switchTab({ url: '/pages/diaryEditor/diaryEditor'})}/>
+      <Image className='add_btn' src={add_btn} onClick={() => Taro.navigateTo({ url: '/pages/diaryEditor/diaryEditor'})}/>
       <View className='Note'>
         <Text className='title'>纸条集</Text>
           <Text className='more' onClick={() => Taro.navigateTo({url: '/pages/moreScrips/moreScrips'})}> {'查看更多>'}</Text>

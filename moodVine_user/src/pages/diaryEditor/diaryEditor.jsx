@@ -1,24 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { View, Text, Input, Image, Button } from '@tarojs/components'
 import { Textarea } from "@taroify/core"
 import Taro from '@tarojs/taro'
 import './diaryEditor.scss'
 import request from '../../utils/request';
 import img1 from '../../assets/paper1.jpg'
-import img2 from '../../assets/paper2.jpg'
 
 const DiaryEditor = () => {
   // const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [images, setImages] = useState([])
+  const [paperStyles, setPaperStyles] = useState([{content:'',id:''}])
   const [selectedPaper, setSelectedPaper] = useState(0)
-  const imageMaxNum = 50; // 最大可上传图片数量
+  const imageMaxNum = 1; // 最大可上传图片数量
 
-  // 信纸数组
-  // TODO 更多信纸如何处理 默认信纸可以存储在前端本地
-  const paperStyles = [
-    img1,img2
-  ]
+  useEffect(async () => {
+    const res = await request.get('/user/reward/getAllRewards');
+    if(res.data.code===200){
+      setPaperStyles(res.data.data.rewards.filter(reward => reward.isHad));
+    }
+  }, []); // 空依赖数组确保仅执行一次
 
   // 上传图片
   const handleImageUpload = () => {
@@ -44,7 +45,7 @@ const DiaryEditor = () => {
   }
 
   // 发布日记
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!content.trim()) {
       Taro.showToast({
         title: '请输入内容',
@@ -53,20 +54,51 @@ const DiaryEditor = () => {
       return
     }
 
-    const res = request.post('/diary/addDiary',{
-      content:content,
-      picture:[],
-      notepaper:0
-    });
-    // TODO 反馈
-    if(res.data){
-      Taro.showToast({
-        title: '发布成功',
-        icon: 'success'
-      })
-      Taro.navigateBack({
-        delta: 1
+    try {
+      const uploadRes = await Taro.uploadFile({
+        url: 'http://localhost:2025/file/upload', // 上传接口
+        filePath: images[0],
+        name: 'file', // 对应后端接收文件的字段名
+        formData: { // 普通对象形式传递附加参数
+            timestamp: Date.now()
+        },
       });
+
+      const data = JSON.parse(uploadRes.data); // 需要手动解析
+      if (data.msg) {
+        console.log(`上传成功！URL: ${data.msg}`);
+        const res = await request.post('/user/diary/addDiary',{
+          content:content,
+          pictures:[data.msg],
+          notepaper:paperStyles[selectedPaper].id
+        });
+        // 反馈
+        if(res.data.code===200){
+          const res2 = await request.post('/user/addScore',{
+            addScore:5
+          });
+          Taro.navigateBack({
+            delta: 1
+          });
+          Taro.showToast({
+            title: '发布成功',
+            icon: 'success'
+          })
+        }
+        else{
+          Taro.showToast({
+            title: '发布失败',
+            icon: 'error'
+          })
+        }
+      } else {
+        console.log('上传失败：未获取到URL');
+      }
+    } catch (error) {
+      Taro.hideLoading();
+      console.error('上传失败:', error);
+      console.log(`上传失败: ${error.errMsg || '网络错误'}`);
+      Taro.showToast({ icon: 'error', title: '上传失败' });
     }
   }
   
@@ -76,7 +108,7 @@ const DiaryEditor = () => {
       <View 
         className='diary-main'
         style={{ 
-          backgroundImage: `url(${paperStyles[selectedPaper]})`,
+          backgroundImage: `url(${paperStyles[selectedPaper].content})`,
           backgroundSize: '100% 100%'
         }}
       >
@@ -139,7 +171,7 @@ const DiaryEditor = () => {
               className={`paper-option ${selectedPaper === index ? 'active' : ''}`}
               onClick={() => handlePaperSelect(index)}
             >
-              <Image src={img1} mode='aspectFill' className='paper-image' />
+              <Image src={paperStyles[index].content} mode='aspectFill' className='paper-image' />
             </View>
           ))}
         </View>

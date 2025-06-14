@@ -4,7 +4,6 @@ import { hideLoading, showLoading } from '@tarojs/taro'
 
 const instance = axios.create({
   baseURL: 'http://localhost:2025',
-  timeout: 10000,
 })
 
 // 请求拦截器

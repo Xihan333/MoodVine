@@ -36,14 +36,13 @@ export default defineAppConfig({
         selectedIconPath: './assets/homepage_fill.png', // 选中图标
       },
       {
-        // pagePath: 'pages/score/score',
         pagePath: 'pages/vinePage/vinePage',
         text: '藤蔓',
         iconPath: './assets/vine.png',
         selectedIconPath: './assets/vine_fill.png',
       },
       {
-        pagePath: 'pages/diaryEditor/diaryEditor',
+        pagePath: 'pages/activityList/activityList',
         text: '活动',
         iconPath: './assets/activity.png',
         selectedIconPath: './assets/activity_fill.png',
