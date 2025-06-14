@@ -111,7 +111,7 @@ export default function Index() {
 
   const getMoodTag = async() => {
   const res = await request.get('/user/tab/getTabs')
-  var tag = ''
+  var tag = '情感细腻的观察者\n文思泉涌的麻花'
   if (res.data.code === 200) {
     // 提取content并拼接为字符串
     console.log(res.data.data)
@@ -129,8 +129,6 @@ const getCalendar = async() => {
 }
 
   useLoad(() => {
-    // const parsedData = JSON.parse(dataString);
-    // setCalendarData(parsedData); // 模拟异步加载
     getCalendar()
     getMoodTag()
   });
