@@ -29,4 +29,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     @Insert("INSERT INTO activity(name,description,start_time,finish_time,picture,number) " + "VALUES (#{name}, #{description}, #{start_time}, #{finish_time}, #{picture}, 0)")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertActivity(Activity activity);
+
+    @Delete("DELETE FROM activity WHERE id = #{activityId}")
+    int deleteActivityById(@Param("activityId") Integer activityId);
 }

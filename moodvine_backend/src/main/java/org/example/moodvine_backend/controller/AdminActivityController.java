@@ -32,4 +32,10 @@ public class AdminActivityController {
     public ResponseData editActivity(@RequestBody EditActivityDTO editActivityDTO) {
         return activityService.editActivity(editActivityDTO);
     }
+
+    @PostMapping("/delete")
+    public ResponseData deleteActivity(@RequestBody EditActivityDTO editDTO) {
+        return activityService.deleteActivity(editDTO.getId());
+    }
+
 }

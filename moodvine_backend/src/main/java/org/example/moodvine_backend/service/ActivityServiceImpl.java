@@ -1,6 +1,7 @@
 package org.example.moodvine_backend.service;
 
 import org.example.moodvine_backend.mapper.ActivityMapper;
+import org.example.moodvine_backend.mapper.ClockInActivityMapper;
 import org.example.moodvine_backend.mapper.IsSignUpMapper;
 import org.example.moodvine_backend.model.DTO.ActivityDTO;
 import org.example.moodvine_backend.model.DTO.EditActivityDTO;
@@ -26,6 +27,8 @@ public class ActivityServiceImpl implements ActivityService{
     @Autowired
     private IsSignUpMapper isSignUpMapper;
 
+    @Autowired
+    private ClockInActivityMapper clockInActivityMapper;
 
     @Override
     @Transactional
@@ -184,6 +187,37 @@ public class ActivityServiceImpl implements ActivityService{
             return ResponseData.ok().msg("修改成功");
         } else {
             return ResponseData.failure(500, "修改失败");
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public ResponseData deleteActivity(Integer activityId) {
+        if (activityId == null) {
+            return ResponseData.failure(400, "活动ID不能为空");
+        }
+
+        Activity activity = activityMapper.selectActivityById(activityId);
+        if (activity == null) {
+            return ResponseData.notFound().msg("活动不存在");
+        }
+
+        int clockInCount = clockInActivityMapper.countClockInRecordsByActivityId(activityId);
+        if (clockInCount > 0) {
+            isSignUpMapper.deleteByActivityId(activityId);
+            return ResponseData.failure(400, "该活动已有打卡记录，无法删除活动。已清理报名记录");
+
+        }
+
+        int deleteSignUpCount = isSignUpMapper.deleteByActivityId(activityId);
+
+        int deleteActivityResult = activityMapper.deleteActivityById(activityId);
+
+        if (deleteActivityResult > 0) {
+            return ResponseData.ok().msg("删除成功");
+        } else {
+            return ResponseData.failure(500, "删除活动失败");
         }
     }
 }
