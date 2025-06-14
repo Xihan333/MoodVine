@@ -1,0 +1,79 @@
+.diary-container {
+//   display: flex;
+//   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.month-navigator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 45px;
+  .month-text {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .arrow {
+    font-size: 30px;
+    color: #666;
+    padding: 0 30px;
+  }
+}
+
+.diary-list {
+  flex: 1;
+  margin: 100px auto 0 auto;
+  height: calc(100vh - 130px);
+  width: calc(100vw - 60px);
+  // 隐藏滚动条
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+    color: transparent;
+  }
+  .diary-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    .diary-date {
+      font-size: 24px;
+      color: #7a7a7a;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .diary-content {
+      font-size: 30px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      gap: 8px;
+      .grid-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        flex-basis: calc(33.333% - 8px); /* 减去间距 */
+        aspect-ratio: 1;
+        .image-item {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+      }
+    }
+  }
+}
