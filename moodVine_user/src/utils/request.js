@@ -9,7 +9,6 @@ const instance = axios.create({
 
 // 请求拦截器
 instance.interceptors.request.use(config => {
-
   // 如果有的话, 请求时携带token
   config.headers.Authorization = 'Bearer ' + Taro.getStorageSync('token')
   console.log('发起请求, 请求地址: ', config.url, ', 详细信息: ', config)

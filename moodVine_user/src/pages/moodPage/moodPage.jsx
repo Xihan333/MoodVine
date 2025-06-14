@@ -4,7 +4,11 @@ import { View, Text, Image, Button } from '@tarojs/components';
 import request from '../../utils/request';
 import { useDidShow } from '@tarojs/taro';
 import './moodPage.scss'; // 引入样式文件
-import img1 from '../../assets/power.png'
+import img1 from '../../assets/moodpaper/power.png'
+import img2 from '../../assets/moodpaper/peace.png'
+import img3 from '../../assets/moodpaper/sad.png'
+import img4 from '../../assets/moodpaper/scared.png'
+import img5 from '../../assets/moodpaper/mad.png'
 
 const MoodPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -13,8 +17,8 @@ const MoodPage = () => {
   const [touchStartX, setTouchStartX] = useState(0)
   const [touchEndX, setTouchEndX] = useState(0)
   const containerRef = useRef(null)
-  const moodImages=[img1] //TODO 拿到心情编号后，完善
- 
+  const moodImages=[img1,img2,img3,img4,img5]
+  
   // 处理滑动事件
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX)

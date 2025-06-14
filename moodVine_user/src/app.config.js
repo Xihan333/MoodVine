@@ -11,10 +11,10 @@ export default defineAppConfig({
     'pages/diaryList/diaryList',
     'pages/people/people',
     'pages/moodPage/moodPage',
-    'pages/vinePage/vinePage'
+    'pages/vinePage/vinePage',
     'pages/moreScrips/moreScrips',
     'pages/scripDetail/scripDetail',
-    'pages/chatAI/chatAI',
+    'pages/chatAI/chatAI'
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -38,9 +38,9 @@ export default defineAppConfig({
       {
         // pagePath: 'pages/score/score',
         pagePath: 'pages/vinePage/vinePage',
-        text: '蜜罐',
-        iconPath: './assets/coupons.png',
-        selectedIconPath: './assets/coupons_fill.png',
+        text: '藤蔓',
+        iconPath: './assets/vine.png',
+        selectedIconPath: './assets/vine_fill.png',
       },
       {
         pagePath: 'pages/diaryEditor/diaryEditor',
