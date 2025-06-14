@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.example.moodvine_backend.model.PO.Diary;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -18,5 +19,9 @@ public interface DiaryMapper extends BaseMapper<Diary> {
     //添加日记
     @Insert("insert into diary(content, pictures,  user_id, reward_id,date) values (#{content}, #{picture}, #{userId}, #{rewardId},#{date})")
     void addDiary( String content, String picture, Integer rewardId,Integer userId, Date date);
+
+    // 获取指定日期范围内的日记数量
+    @Select("SELECT COUNT(*) FROM diary WHERE user_id = #{userId} AND date BETWEEN #{startDate} AND #{endDate}")
+    Integer getDiariesByDateRange(Integer userId, LocalDate startDate, LocalDate endDate);
 
 }
