@@ -34,10 +34,20 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
 
         // 获取请求中的Token
         String token = request.getHeader("Authorization");
-        //去掉"Bearer "
+        if(token == null){
+            return null; // No token provided, return null user
+        }
         token = jwtUtil.extractTokenFromHeader(token);
+        
+        String identifier = jwtUtil.getSubjectFromToken(token);
+        if (identifier == null) {
+            return null;
+        }
 
-        String email = jwtUtil.getEmailFromToken(token);
-        return userMapper.findByEmail(email);
+        User user = userMapper.findByEmail(identifier);
+        if (user == null) {
+            user = userMapper.findByOpenId(identifier);
+        }
+        return user;
     }
 }

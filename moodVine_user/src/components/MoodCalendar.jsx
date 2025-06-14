@@ -5,13 +5,59 @@ import { View, Text } from '@tarojs/components';
 
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// 生成日期范围过滤器（关键修改点[7,8]）
+// 获取最近五个月的第一天到今天的所有日期范围
 function getRecentFiveMonthsRange() {
-  const today = new Date();
-  const cutoffDate = new Date(today);
-  cutoffDate.setMonth(cutoffDate.getMonth() - 4); // 改为获取五个月前的第一天[6,7](@ref)
-  cutoffDate.setDate(1);
-  return cutoffDate;
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setMonth(endDate.getMonth() - 4);
+  startDate.setDate(1);
+  return { startDate, endDate };
+}
+
+// 生成日期范围的完整日期数组
+function generateDateRange(startDate, endDate) {
+  const dates = [];
+  const current = new Date(startDate);
+  
+  while (current <= endDate) {
+    const dateStr = [
+      current.getFullYear(),
+      String(current.getMonth() + 1).padStart(2, '0'),
+      String(current.getDate()).padStart(2, '0')
+    ].join('-');
+    
+    dates.push(dateStr);
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return dates;
+}
+
+// 创建填充数据（无数据的日期设为level:0）
+function generateFilledContributions(dates, contributions) {
+  const contributionMap = {};
+  contributions.forEach(c => {
+    const date = new Date(c.date);
+    const dateStr = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
+    
+    contributionMap[dateStr] = c;
+  });
+  
+  return dates.map(dateStr => {
+    if (contributionMap[dateStr]) {
+      return contributionMap[dateStr];
+    } else {
+      return {
+        date: dateStr,
+        count: 0,
+        level: 0
+      };
+    }
+  });
 }
 
 function getTooltip(oneDay, date) {
@@ -27,32 +73,40 @@ function getTooltip(oneDay, date) {
 }
 
 function ContributionCalendar({ contributions, className, ...rest }) {
-  // 过滤最近五个月数据（核心修改[3,6]）
-  const cutoffDate = getRecentFiveMonthsRange();
-  const filteredContributions = contributions.filter(c => {
-    const itemDate = new Date(c.date);
-    return itemDate >= cutoffDate;
-  });
-
-  const firstDate = filteredContributions.length > 0 
-    ? new Date(filteredContributions[0].date)
-    : new Date();
+  // 获取最近五个月日期范围
+  const { startDate, endDate } = getRecentFiveMonthsRange();
+  
+  // 生成所有日期
+  const allDates = generateDateRange(
+    new Date(startDate), 
+    new Date(endDate)
+  );
+  
+  // 生成完整贡献数据（包含填充0值）
+  const filledContributions = generateFilledContributions(
+    allDates, 
+    contributions
+  );
+  
+  // 渲染起点设置（使用第一个填充日期的星期数）
+  const firstDate = new Date(filledContributions[0].date);
   const startRow = firstDate.getDay();
+  
+  // 准备渲染元素
   const months = [];
-  let total = 0;
   let latestMonth = -1;
+  let tiles = [];
 
-  const tiles = filteredContributions.map((c, i) => {
+  filledContributions.forEach((c, i) => {
     const date = new Date(c.date);
     const month = date.getMonth();
-    total += c.count;
-	console.log(c.level)
-
-    if (date.getDay() === 0 && month !== latestMonth) {
-      const gridColumn = 2 + Math.floor((i + startRow) / 7);
-      latestMonth = month;
-      months.push(
-        MONTH[month] ? (
+    
+    // 月份标签逻辑（每月的第一个星期日显示标签）
+    if (date.getDay() === 0) {
+      if (month !== latestMonth) {
+        const gridColumn = 2 + Math.floor(i / 7);
+        latestMonth = month;
+        months.push(
           <Text 
             className="month" 
             key={`month-${i}-${month}`} 
@@ -60,55 +114,57 @@ function ContributionCalendar({ contributions, className, ...rest }) {
           >
             {MONTH[month]}
           </Text>
-        ) : null
-      );
-    };
-	const level_color = [ `#f0f0f0`,  `#9BE9A8`,   `#40C463`,   `#30A14E`,   `#216E39`,  `#0F532D` ];
-    return (
+        );
+      }
+    }
+    
+    // 创建心情方格
+    const level_color = [ 
+      `#f0f0f0`, // level0 - 无数据
+      `#FFB880`, // level1
+      `#A9DB96`, // level2
+      `#AFE0FE`, // level3
+      `#FFA4B5`, // level4
+      `#FD6F61`  // level5
+    ];
+    
+    tiles.push(
       <View
         className="tile"
-        key={`${i}`}
+        key={`${c.date}`}
         data-level={c.level}
-        title={getTooltip(c, new Date(c.date))}
-		style={{ 
-			'--tile-color': level_color[c.level],
-  		}}
+        title={getTooltip(c, date)}
+        style={{ 
+          '--tile-color': level_color[c.level],
+        }}
       />
     );
   });
 
-  // 调整首月显示逻辑（适配五个月显示[4]）
+  // 应用起始行偏移
   if (tiles.length > 0) {
-    tiles[0] = React.cloneElement(tiles[0], {
-      style: { gridRow: startRow + 1 },
-    });
-    
-    // 清理多余月份标签
-    const visibleMonths = new Set(filteredContributions
-      .map(c => new Date(c.date).getMonth())
-      .filter((v, i, a) => a.indexOf(v) === i)
-    );
-    months.forEach((month, index) => {
-      if (month && !visibleMonths.has(new Date(filteredContributions[index].date).getMonth())) {
-        months[index] = null;
+    tiles = tiles.map((tile, i) => {
+      if (i === 0) {
+        return React.cloneElement(tile, {
+          style: { 
+            ...tile.props.style,
+            gridRow: startRow + 1
+          },
+        });
       }
+      return tile;
     });
   }
 
   return (
     <View {...rest} className={clsx("container", className)}>
-      {months.filter(Boolean)}
+      {months}
       <Text className="week">Mon</Text>
       <Text className="week">Wed</Text>
       <Text className="week">Fri</Text>
     
       <View className="tiles">{tiles}</View>
     
-      <View className="legend">
-        Less
-        <View className="tile"/>
-        ...
-      </View>
     </View>
   );
 }

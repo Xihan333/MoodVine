@@ -29,7 +29,7 @@ public class RewardService {
             m = new HashMap();
             m.put("reward_id", reward.getId());
             m.put("content", reward.getName());
-            m.put("point", reward.getPrice());
+            m.put("point", reward.getPoint());
             dataList.add(m);
         }
         return ResponseData.success(dataList);

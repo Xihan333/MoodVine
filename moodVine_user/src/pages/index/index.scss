@@ -6,6 +6,7 @@
   border-radius: 20px;
   align-items: center;
   box-shadow: 0px 0px 1px #11111131;
+  margin-bottom: 20px;
 }
 
 .header {
@@ -30,9 +31,73 @@
 }
 
 .add_btn {
-  position: absolute;
+  position: fixed; /* 固定定位关键修改 */
   height: 100px;
   width: 100px;
   bottom: 80px;
   right: 50px;
+  z-index: 999; /* 确保按钮在最上层 */
+  min-width: 100px;
+  min-height: 100px;
+}
+
+
+.scrip-card {
+  width: 90%;
+  height: 200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.mood {
+  width: 80px;
+  height: 80px;
+  margin-right: 25px;
+  margin-left: 20px;
+}
+
+.sentence {
+  font-family: 'summerpoem', sans-serif !important;
+  font-size: 40px;
+  font-family: '楷体';
+  white-space: normal;
+  width: 65%;
+  color: #6F624E;
+}
+
+.time {
+  width: 15%;
+  margin-left: 20px;
+  margin-top: 20px;
+  font-size: 25px;
+  color: rgb(138, 138, 138);
+}
+
+.note {
+  margin-top: 20px;
+}
+
+.title {
+  margin-left: 5%;
+  color: #6F624E;
+  font-weight: bold;
+  font-size: large;
+}
+
+.more {
+  float: right;
+  margin-right: 6%;
+  font-size: small;
+  color: rgb(172, 172, 172);
+}
+
+.cute {
+  position: fixed;
+  bottom: -43px;
+  width: 136px;
+  height: 205px;
+  left: 40%;
 }

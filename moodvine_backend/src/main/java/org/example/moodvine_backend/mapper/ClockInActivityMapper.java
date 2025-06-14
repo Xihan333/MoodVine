@@ -19,4 +19,8 @@ public interface ClockInActivityMapper extends BaseMapper<ClockInActivity> {
             @Param("userId") Integer userId,
             @Param("activityId") Integer activityId
     );
+
+
+    @Select("SELECT COUNT(*) FROM clockInActivity WHERE activity_id = #{activityId}")
+    int countClockInRecordsByActivityId(@Param("activityId") Integer activityId);
 }

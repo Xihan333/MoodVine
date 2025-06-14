@@ -6,16 +6,17 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.example.moodvine_backend.model.PO.Diary;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
 public interface DiaryMapper extends BaseMapper<Diary> {
     //获取指定月份的日记
-    @Select("SELECT * FROM diary where user_id=#{user_id} and YEAR(date)=#{year} and YEAR(date)=#{month}")
+    @Select("SELECT id, content, pictures, date, user_id, reward_id AS notepaper FROM diary where user_id=#{user_id} and YEAR(date)=#{year} and MONTH(date)=#{month} ORDER BY date ASC")
     List<Diary> getDiariesByMonth(Integer user_id, Integer year,Integer month);
 
     //添加日记
-    @Insert("insert into diary(content, picture,  user_id, reward_id) values (#{content}, #{picture}, #{userId}, #{rewardId})")
-    void addDiary(Integer userId, String picture, String content, String rewardId);
+    @Insert("insert into diary(content, pictures,  user_id, reward_id,date) values (#{content}, #{picture}, #{userId}, #{rewardId},#{date})")
+    void addDiary( String content, String picture, Integer rewardId,Integer userId, Date date);
 
 }

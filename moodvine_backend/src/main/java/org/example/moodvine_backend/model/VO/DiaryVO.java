@@ -1,0 +1,18 @@
+package org.example.moodvine_backend.model.VO;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+public class DiaryVO {
+    private Integer id;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date date;
+
+    private String content;
+    private List<String> pictures;
+    private Integer notepaper;
+}

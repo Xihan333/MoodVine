@@ -1,0 +1,80 @@
+.scrip-card {
+    position: relative; /* 定位基准 */
+    width: 95%;
+    height: 330px;
+    margin: auto;
+    margin-top: 10px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.scrip-content {
+    position: absolute;
+    top: 20%;
+    left: 10%;
+    width: 80%;
+    white-space: normal;
+    font-weight: bold;
+}
+
+.title-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    font-family: 'summerpoem', sans-serif !important;
+    font-size: 50px;
+
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #6F624E;
+}
+
+.dialogue-area {
+  padding: 20px;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 20px;
+  
+  &.user {
+    justify-content: flex-end;
+    .bubble { background: #fcdbb5; }
+  }
+  
+  &.other {
+    justify-content: flex-start;
+    .bubble { background: white; }
+  }
+
+  .avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 10px;
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    
+  }
+
+  /* 在消息气泡的样式文件中 */
+    .bubble.image-type {
+        background-color: transparent !important; /* 移除背景色 */
+        padding: 0 !important; /* 去除内边距 */
+        border: none !important; /* 去掉边框 */
+    }
+
+    .bubble.image-type .msg-image {
+        border-radius: 8px; /* 可选：保留图片圆角 */
+        max-width: 300px; /* 控制图片最大宽度 */
+    }
+}

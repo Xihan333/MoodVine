@@ -1,5 +1,6 @@
 package org.example.moodvine_backend.service;
 
+import org.example.moodvine_backend.annotation.CurrentUser;
 import org.example.moodvine_backend.cache.IGlobalCache;
 import org.example.moodvine_backend.mapper.UserMapper;
 import org.example.moodvine_backend.model.DTO.LoginData;
@@ -29,8 +30,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 
 
 @Service
@@ -58,25 +62,43 @@ public class UserService {
         try {
             HttpResponse response = httpClient.execute(httpGet);
             String result = EntityUtils.toString(response.getEntity());
-            Map<String, String> resultMap = parseJson(result);
+            System.out.println("WeChat API raw response: " + result);
+            // 使用FastJSON解析响应
+            Map<String, String> resultMap = JSON.parseObject(result, new TypeReference<Map<String, String>>() {});
+            System.out.println("Parsed resultMap: " + resultMap);
             String openid = resultMap.get("openid");
-            if (openid != null) {
+            System.out.println("Extracted openid: " + openid);
+            String sessionKey = resultMap.get("session_key");
+            
+            if (openid == null || openid.isEmpty()) {
+                return ResponseData.failure(401, "微信登录失败");
+            }
+
                 // 检查用户是否已注册
                 User user = userMapper.findByOpenId(openid);
                 if (user == null) {
-                    // 用户未注册，进行注册
+                // 用户未注册，创建新用户
                     user = new User();
-                    user.setOpen_id(openid);
+                    user.setOpenId(openid);
+                    user.setUserType(UserType.USER);
+                    user.setScore(0); // 初始蜜罐值为0
+                    user.setAvatar(""); // 设置默认头像
+                    user.setNickName(""); // 设置默认昵称
                     userMapper.insert(user);
+                    // 重新从数据库获取用户，确保所有字段都已加载
+                    user = userMapper.findByOpenId(openid);
                 }
+
                 // 生成 JWT 令牌
-                String token = jwtUtil.generateToken(user.getEmail());
-                Map<String, String> responseData = new HashMap<>();
+            String token = jwtUtil.generateToken(user);
+            
+            // 创建返回数据
+            Map<String, Object> responseData = new HashMap<>();
                 responseData.put("token", token);
+            responseData.put("user", user);
+            responseData.put("isNewUser", user.getEmail() == null); // 如果是新用户，email为null
+            
                 return ResponseData.success(responseData);
-            } else {
-                return ResponseData.failure(401, "微信登录失败");
-            }
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseData.failure(500, "服务器内部错误");
@@ -316,6 +338,22 @@ public class UserService {
 //    }
     public ResponseData addScore(Integer userId, Integer addScore){
         userMapper.addScore(userId,addScore);
-        return new ResponseData(200,"成功增加",null);
+        return ResponseData.ok().msg("成功增加").data(Collections.emptyMap());
+    }
+
+    public ResponseData updateWxUserInfo(
+            @CurrentUser User user,
+            String nickName,
+            String avatar
+    ) {
+        if (user == null) {
+            return ResponseData.failure(401, "用户未登录");
+        }
+
+        if (nickName != null) user.setNickName(nickName);
+        if (avatar != null) user.setAvatar(avatar);
+
+        userMapper.update(user);
+        return ResponseData.success(user);
     }
 }

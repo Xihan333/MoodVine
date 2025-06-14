@@ -1,0 +1,33 @@
+.scrip-card {
+  width: 90%;
+  height: 200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.mood {
+  width: 80px;
+  height: 80px;
+  margin-right: 25px;
+  margin-left: 20px;
+}
+
+.sentence {
+  font-family: 'summerpoem', sans-serif !important;
+  font-size: 40px;
+  font-family: '楷体';
+  white-space: normal;
+  width: 65%;
+  color: #6F624E;
+}
+
+.time {
+  width: 15%;
+  margin-left: 20px;
+  margin-top: 20px;
+  font-size: 25px;
+  color: rgb(138, 138, 138);
+}

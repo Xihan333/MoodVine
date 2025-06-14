@@ -63,12 +63,15 @@ public class CustomMethodArgumentResolver implements HandlerMethodArgumentResolv
 
         Class<?> parameterType = parameter.getParameterType();
         String requestBody = getRequestBody(servletRequest);
+        System.out.println("Received request body: " + requestBody);
         Map<String, Object> params = ObjectMapperUtil.str2Obj(requestBody, new TypeReference<Map<String, Object>>() {
         });
 
         params = MapUtils.isEmpty(params) ? new HashMap<>(0) : params;
+        System.out.println("Parsed params map: " + params);
         String name = StringUtils.isBlank(customParam.value()) ? parameter.getParameterName() : customParam.value();
         Object value = params.get(name);
+        System.out.println("Parameter name: " + name + ", value: " + value);
 
         if (parameterType.equals(String.class)) {
             if (StringUtils.isBlank((String) value)) {

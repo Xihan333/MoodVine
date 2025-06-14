@@ -6,27 +6,34 @@ import org.example.moodvine_backend.model.PO.User;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.service.DiaryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/diary")
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@RequestMapping("/user/diary")
 @RestController
 public class DiaryController {
     @Autowired
     DiaryService diaryService;
 
     @PostMapping("/getDiaries")
-    public ResponseData getDiariesByMonth(@CurrentUser User user, @RequestParam String date) {
+    public ResponseData getDiariesByMonth(@CurrentUser User user, @RequestBody Map<String, Object> request) {
+        String date = (String) request.get("date");
+        //Integer userId = (Integer) request.get("userId");
         Integer year = Integer.parseInt(date.substring(0, 4));
         Integer month = Integer.parseInt(date.substring(5, 7));
         return diaryService.getDiariesByMonth(user.getId(), year, month);
     }
 
     @PostMapping("/addDiary")
-    public ResponseData addDiary(@CurrentUser User user,@RequestParam String content, @RequestParam String picture, @RequestParam String rewardId ) {
-        return diaryService.addDiary(user.getId(),content,picture,rewardId);
+    public ResponseData addDiary(@CurrentUser User user,@RequestBody Map<String, Object> request) {
+        //Integer userId = (Integer) request.get("userId");
+        String content = (String) request.get("content");
+        List<String> pictures = (List<String>) request.get("pictures");
+        Integer notepaper = (Integer) request.get("notepaper");
+        return diaryService.addDiary(user.getId(),content,pictures,notepaper);
     }
 
 }

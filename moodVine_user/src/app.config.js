@@ -12,6 +12,9 @@ export default defineAppConfig({
     'pages/people/people',
     'pages/moodPage/moodPage',
     'pages/vinePage/vinePage'
+    'pages/moreScrips/moreScrips',
+    'pages/scripDetail/scripDetail',
+    'pages/chatAI/chatAI',
   ],
   window: {
     backgroundTextStyle: 'light',

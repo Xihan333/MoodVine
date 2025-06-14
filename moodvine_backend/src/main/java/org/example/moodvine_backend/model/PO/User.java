@@ -19,7 +19,7 @@ public class User {  //User : 有关用户的全部信息
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    private String open_id;
+    private String openId;
 
     private String email; //邮箱
 

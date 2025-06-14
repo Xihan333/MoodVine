@@ -1,6 +1,7 @@
 package org.example.moodvine_backend.model.PO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,10 @@ public class Reward {
 
     private String name; // 信纸名称
 
-    private String imageUrl; // 日记图片URL
+    private String content; // 日记图片URL
 
-    private Integer price; //所需蜜罐值
+    private Integer point; //所需蜜罐值
+
+    @TableField(exist = false)
+    private Boolean isHad;
 }

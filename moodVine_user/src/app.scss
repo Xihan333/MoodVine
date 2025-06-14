@@ -4,4 +4,19 @@ page{
     background-size: cover;
 }
 
-@import "../src/assets/fonts/pinbo.css";
+// @import "../src/assets/fonts/summerpoem.css";
+
+// @import "../src/assets/fonts/pinbo.css";
+
+@font-face {
+  font-family: 'summerpoem';
+  src: 
+    url('../src/assets/fonts/summer.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: 'MyCustomFont', sans-serif;
+}
