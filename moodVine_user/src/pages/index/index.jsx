@@ -12,6 +12,7 @@ import bg1 from '../../assets/moodpaper/blue.png'     // 开心背景
 import bg2 from '../../assets/moodpaper/green.png'     // 难过背景
 import bg3 from '../../assets/moodpaper/pink.png'     // 生气背景
 import bg4 from '../../assets/moodpaper/purple.png' 
+import cartoon from '../../assets/cute.png'
 
 import 'normalize.css'
 import './index.scss'
@@ -134,6 +135,7 @@ export default function Index() {
           <Text className='more' onClick={() => Taro.navigateTo({url: '/pages/moreScrips/moreScrips'})}> {'查看更多>'}</Text>
       </View>
       <Scrips/>
+      <Image className='cute' src={cartoon} onClick={() => Taro.navigateTo({url: '/pages/chatAI/chatAI'})} />
     </View>
   )
 }
