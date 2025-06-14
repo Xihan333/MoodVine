@@ -86,5 +86,23 @@ public class ChatController {
         return chatService.analyseVoice(chatVoiceData);
     }
 
+    @Operation(summary = "语音普通聊天")
+    @PostMapping(value = "/ttsChat")
+    public ResponseData ttsChat(@RequestBody ChatData chatData) throws Exception {
+        return chatService.ttsChat(chatData);
+    }
+
+    @Operation(summary = "语音图片聊天")
+    @PostMapping("/ttsImageChat")
+    public ResponseData ttsImageChat(@RequestBody ChatImageData chatImageData) throws Exception {
+        return chatService.ttsImageChat(chatImageData);
+    }
+
+    @Operation(summary = "语音语音聊天")
+    @PostMapping("/ttsVoiceChat")
+    public ResponseData ttsVoiceChat(@RequestBody ChatVoiceData chatVoiceData) throws Exception{
+        return chatService.ttsVoiceChat(chatVoiceData);
+    }
+    
 
 }

@@ -12,6 +12,7 @@ import org.example.moodvine_backend.model.DTO.ChatVoiceData;
 import org.example.moodvine_backend.model.PO.ChatSession;
 import org.example.moodvine_backend.model.VO.ChatResponse;
 import org.example.moodvine_backend.model.VO.ResponseData;
+import org.example.moodvine_backend.model.VO.TtsChatResponse;
 import org.example.moodvine_backend.utils.MultipartFileResource;
 import org.example.moodvine_backend.utils.UrlMultipartFile;
 import org.springframework.ai.chat.client.ChatClient;
@@ -50,6 +51,9 @@ public class ChatService {
     @Autowired
     @Qualifier("chatClient")
     private ChatClient chatClient;
+
+    @Autowired
+    private TtsService ttsService;
 
     public void saveSession(ChatSession chatSession, String userId) {
         String key = CHAT_SESSION_PREFIX + userId;
@@ -206,14 +210,104 @@ public class ChatService {
 
             String transcribedText = callVoiceToTextService(voiceFile);
 
+//            System.out.println("转化后的文本内容：" + transcribedText);
+
+            String message = "这是用户发送的语音转文字内容（英文表示语音的情绪），请根据内容直接给出回答：\\n" + transcribedText;
+
+            ChatData chatData = new ChatData(message, sessionId, userId);
+
+            // 调用已有的generate方法获取AI回复
+            return generate(chatData);
+        } catch (Exception e) {
+            return new ResponseData(500, "语音分析失败: " + e.getMessage(), null);
+        }
+    }
+
+    private String extractSentence(String response) {
+        // 处理多行think标签（包括不规则换行）
+        String cleaned = response.replaceAll("(?is)<think>.*?</think>", "").trim();
+
+        // 处理残留的think片段（如果标签不完整）
+        cleaned = cleaned.replaceAll("<?think>?", "").trim();
+
+        // 提取第一个有效句子（如果仍有混杂内容）
+        String[] lines = cleaned.split("\\r?\\n");
+        for (String line : lines) {
+            if (!line.isBlank() && !line.matches(".*思考.*|.*分析.*")) { // 过滤中文分析文本
+                return line.trim();
+            }
+        }
+
+        // 终极回退：返回原始内容首行
+        return response.lines().findFirst().orElse("").trim();
+    }
+
+    public ResponseData ttsChat(ChatData chatData) throws Exception {
+        String sessionId = chatData.getSessionId();
+        String message = chatData.getMessage();
+        String userId = chatData.getUserId();
+        // 默认生成一个会话
+        if (!StringUtils.hasText(sessionId)) {
+            sessionId = UUID.randomUUID().toString();
+            ChatSession chatSession = new ChatSession()
+                    .setSessionId(sessionId)
+                    .setSessionName(message.length() >= 15 ? message.substring(0, 15) : message);
+            saveSession(chatSession, userId);
+        }
+        String finalSessionId = sessionId;
+        String answer = chatClient.prompt()
+                .user(message)
+                .advisors(advisorSpec -> advisorSpec
+                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY, finalSessionId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
+                .call()
+                .content();
+
+        answer = extractSentence(answer);
+        String url = (String) ttsService.speech(answer).getData();
+
+        TtsChatResponse response = new TtsChatResponse(answer, finalSessionId, url);
+
+        return new ResponseData(200, "ok", response);
+    }
+
+    public ResponseData ttsImageChat(ChatImageData chatImageData) throws Exception {
+        String sessionId = chatImageData.getSessionId();
+        String imageUrl = chatImageData.getImageUrl();
+        String userId = chatImageData.getUserId();
+
+        String imageDescription = callImageAnalysisService(imageUrl);
+
+        System.out.println(imageDescription);
+
+        String message = "用户发送了一张图片，内容描述如下：\\n" + imageDescription;
+
+        // 将图片描述作为消息传递给AI对话系统
+        ChatData chatData = new ChatData(message, sessionId, userId);
+
+        // 调用已有的generate方法获取AI回复
+        return ttsChat(chatData);
+    }
+
+
+    public ResponseData ttsVoiceChat(ChatVoiceData chatVoiceData) {
+        try {
+            String sessionId = chatVoiceData.getSessionId();
+            String voiceUrl = chatVoiceData.getVoiceUrl();
+            String userId = chatVoiceData.getUserId();
+
+            MultipartFile voiceFile = new UrlMultipartFile(voiceUrl);
+
+            String transcribedText = callVoiceToTextService(voiceFile);
+
             System.out.println("转化后的文本内容：" + transcribedText);
 
             String message = "这是用户发送的语音转文字内容（英文表示语音的情绪），请根据内容直接给出回答：\\n" + transcribedText;
 
-            ChatData chatData = new ChatData(transcribedText, sessionId, userId);
+            ChatData chatData = new ChatData(message, sessionId, userId);
 
             // 调用已有的generate方法获取AI回复
-            return generate(chatData);
+            return ttsChat(chatData);
         } catch (Exception e) {
             return new ResponseData(500, "语音分析失败: " + e.getMessage(), null);
         }

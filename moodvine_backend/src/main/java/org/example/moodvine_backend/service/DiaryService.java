@@ -28,6 +28,9 @@ public class DiaryService {
     @Autowired
     private MoodMapper moodMapper;
 
+    @Autowired
+    private ChatClient labelAnalysisClient;
+
     public ResponseData getDiariesByMonth(Integer userId, Integer year, Integer month) {
         List<Diary> diaries = diaryMapper.getDiariesByMonth(userId, year, month);
         List<DiaryVO> diaryList = diaries.stream().map(diary -> {
@@ -69,6 +72,15 @@ public class DiaryService {
         return null;
     }
 
+
+    private String extractSentence(String response) {
+        // 改进后的正则表达式，处理多行think标签
+        String sentence = response.replaceAll("(?s)<think>.*?</think>", "").trim();
+
+        // 如果处理后为空，返回原始内容
+        return sentence.isEmpty() ? response : sentence;
+    }
+
     public ResponseData addDiary(Integer userId, String content, List<String> pictureList, Integer rewardId) {
         String pictures = String.join(",", pictureList);
         Diary diary = new Diary();
@@ -97,6 +109,18 @@ public class DiaryService {
         newMood.setDate(today);
         newMood.setMood(moodType);
         moodMapper.insert(newMood);
+
+        // 分析标签
+        String labelResponse = labelAnalysisClient.prompt()
+                .user(content)
+                .call()
+                .content();
+
+        String label = extractSentence(labelResponse);
+
+        System.out.println("---------------label-------------------");
+        System.out.println(label);
+        System.out.println("---------------label-------------------");
 
         return ResponseData.ok().msg("记录成功").data(Collections.emptyMap());
     }

@@ -41,6 +41,9 @@ public class ScripService {
     @Autowired
     private MoodMapper moodMapper;
 
+    @Autowired
+    private ChatClient labelAnalysisClient;
+
     public ResponseData getAllScrips(Integer userId) {
         List<Scrip> scrips = scripMapper.getAllScrips(userId);
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
@@ -120,7 +123,6 @@ public class ScripService {
                 .call()
                 .content();
 
-        System.out.println(moodResponse );
 
         String moodCode = extractMoodCode(moodResponse);
 
@@ -131,9 +133,17 @@ public class ScripService {
 
         String sentence = extractSentence(sentenceResponse);
 
-        System.out.println(sentenceResponse);
-        System.out.println(sentence);
 
+        // 分析标签
+        String labelResponse = labelAnalysisClient.prompt()
+                .user(content)
+                .call()
+                .content();
+
+        String label = extractSentence(labelResponse);
+
+
+        // 情绪！
         MoodType moodType = MoodType.fromCode(moodCode);
         java.util.Date today = new Date();
 
@@ -152,6 +162,10 @@ public class ScripService {
         newMood.setDate(today);
         newMood.setMood(moodType);
         moodMapper.insert(newMood);
+
+        // 标签label
+
+
 
         return new ResponseData(200, "success", scrip);
     }
