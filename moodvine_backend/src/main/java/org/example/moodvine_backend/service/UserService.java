@@ -145,7 +145,7 @@ public class UserService {
         }
 
         // 生成JWT令牌
-        String token = jwtUtil.generateToken(loginData.getEmail());
+        String token = jwtUtil.generateToken(user);
 
         // 创建JwtResponse对象并设置令牌
         JwtResponse jwtResponse = new JwtResponse();
