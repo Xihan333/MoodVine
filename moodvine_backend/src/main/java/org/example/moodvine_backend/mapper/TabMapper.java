@@ -35,4 +35,8 @@ public interface TabMapper extends BaseMapper<Tab> {
             @Param(("origin")) Origin origin
     );
 
+    // 获取指定日期范围内的标签
+    @Select("SELECT * FROM tab WHERE user_id = #{userId} AND date BETWEEN #{startDate} AND #{endDate}")
+    List<Tab> getTabsByUserAndDateRange(Integer userId, LocalDate startDate, LocalDate endDate);
+
 }

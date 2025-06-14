@@ -2,12 +2,10 @@ package org.example.moodvine_backend.service;
 
 import org.example.moodvine_backend.annotation.CurrentUser;
 import org.example.moodvine_backend.cache.IGlobalCache;
-import org.example.moodvine_backend.mapper.UserMapper;
+import org.example.moodvine_backend.mapper.*;
 import org.example.moodvine_backend.model.DTO.LoginData;
 import org.example.moodvine_backend.model.DTO.RegisterData;
-import org.example.moodvine_backend.model.PO.Gender;
-import org.example.moodvine_backend.model.PO.User;
-import org.example.moodvine_backend.model.PO.UserType;
+import org.example.moodvine_backend.model.PO.*;
 import org.example.moodvine_backend.model.VO.JwtResponse;
 import org.example.moodvine_backend.model.VO.ResponseData;
 import org.example.moodvine_backend.utils.Const;
@@ -31,10 +29,13 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 
@@ -50,6 +51,21 @@ public class UserService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    DiaryMapper diaryMapper;
+
+    @Autowired
+    ScripMapper scripMapper;
+
+    @Autowired
+    MoodMapper moodMapper;
+
+    @Autowired
+    TabMapper tabMapper;
+
+    @Autowired
+    ClockInActivityMapper clockInActivityMapper;
 
     @Value("${wx.appid}")
     private String appid;
@@ -399,4 +415,63 @@ public class UserService {
         userMapper.updateUserInfo(user);
         return ResponseData.ok().msg("修改成功").data(Collections.emptyMap());
     }
+
+    public ResponseData getWeeklyStatistics(Integer userId) {
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.with(DayOfWeek.MONDAY);
+        LocalDate endDate = today.with(DayOfWeek.SUNDAY);
+        System.out.println(startDate);
+        System.out.println(endDate);
+
+        // 统计本周日记的个数
+        Integer diaryCount = diaryMapper.getDiariesByDateRange(userId, startDate, endDate);
+
+        // 统计本周聊愈纸条scrip的次数
+        Integer scripCount = scripMapper.getScripsByDateRange(userId, startDate, endDate);
+
+        // 统计本周最频繁的心情
+        List<Mood> moods = moodMapper.findMoodByDateRange(userId, startDate, endDate);
+        String mostFrequentMood = getMostFrequentMood(moods);
+
+        // 统计本周活动打卡次数
+        Integer clockInCount = clockInActivityMapper.getClockInByDateRange(userId, startDate, endDate);
+
+        // 统计本周所有的tab标签
+        List<Tab> tabs = tabMapper.getTabsByUserAndDateRange(userId, startDate, endDate);
+        List<Map<String,Object>> Labels = tabs.stream().map(tab -> {
+            Map<String,Object> map = new HashMap<>();
+            map.put("content",tab.getContent());
+            return map;
+        }).collect(Collectors.toList());
+
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("diaryCount", diaryCount);
+        statistics.put("scripCount", scripCount);
+        statistics.put("mostFrequentMood", Integer.parseInt(mostFrequentMood));
+        statistics.put("activityClockIn", clockInCount);
+        statistics.put("tabs", Labels);
+
+        return ResponseData.success(statistics);
+    }
+
+    private String getMostFrequentMood(List<Mood> moods) {
+        if (moods.isEmpty()) {
+            return null;
+        }
+        Map<String, Integer> moodCount = new HashMap<>();
+        for (Mood mood : moods) {
+            String moodCode = mood.getMood().getCode();
+            moodCount.put(moodCode, moodCount.getOrDefault(moodCode, 0) + 1);
+        }
+        String mostFrequent = null;
+        int maxCount = 0;
+        for (Map.Entry<String, Integer> entry : moodCount.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                maxCount = entry.getValue();
+                mostFrequent = entry.getKey();
+            }
+        }
+        return mostFrequent;
+    }
+
 }
