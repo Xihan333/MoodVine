@@ -12,4 +12,5 @@ public interface ActivityService {
     ResponseData getAllActivities();
     ResponseData addActivity(ActivityDTO activityDTO);
     ResponseData editActivity(EditActivityDTO editActivityDTO);
+    ResponseData deleteActivity(Integer activityId);
 }
