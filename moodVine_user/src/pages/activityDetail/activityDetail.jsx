@@ -38,7 +38,6 @@ const ActivityDetail = () => {
           // 获取数组的最后一个元素
           const lastClockIn = res.data.data.clockIns[res.data.data.clockIns.length - 1];  
           // 检查最后一个元素的 date 是否是今天
-          console.log('sss',lastClockIn)
           if (lastClockIn && lastClockIn.date === todayFormatted) {
             dispatch(setActivityIsClockIn(true))
           } else {
