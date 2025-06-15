@@ -1,15 +1,15 @@
-import { View, Text, Image, Textarea, Video } from '@tarojs/components'
+import { View, Text, Image, Textarea, Video, ScrollView } from '@tarojs/components'
 import { Button, Dialog } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import React, { useState, useEffect, useRef } from 'react'
 import { Close } from '@taroify/icons'
 
-import role from '../../assets/111.png'
 import audioIcon from '../../assets/audio-icon.png'
 import picIcon from '../../assets/pic-icon.png'
 import textIcon from '../../assets/text-icon.png'
 import dialog from '../../assets/dialog.png'
+import exitbtn from '../../assets/exit.png'
 
 import 'normalize.css'
 import './chatAI.scss'
@@ -71,6 +71,7 @@ const chatAI = () => {
             // 播放结束时销毁实例
             audio.onEnded(() => {
                 audio.destroy();
+                setText('')
             });
 
         } catch (error) {
@@ -410,39 +411,6 @@ const chatAI = () => {
         console.error('音频上传失败:', error);
         }
     }
-
-    // 添加Taro页面事件处理
-    useEffect(() => {
-        // 监听页面卸载前事件
-        const pageInstance = Taro.getCurrentInstance();
-        
-        // 保存原始的事件处理函数
-        const originalOnUnload = pageInstance.page.onUnload;
-        
-        // 重写onUnload方法
-        pageInstance.page.onUnload = async function () {
-            
-            await handleSaveBeforeExit();
-            
-            // 调用原始事件处理函数
-            if (originalOnUnload) {
-                originalOnUnload.call(this);
-            }
-        };
-        
-        // 重写onBack方法
-        const originalOnBack = pageInstance.page.onBack;
-        pageInstance.page.onBack = function () {
-            handleSaveBeforeExit();
-            return true; // 返回true表示我们已经处理了返回事件，阻止默认行为
-        };
-        
-        return () => {
-            // 组件卸载时恢复原始事件处理函数
-            pageInstance.page.onUnload = originalOnUnload;
-            pageInstance.page.onBack = originalOnBack;
-        };
-    }, [dialogs]);
     
     // 处理保存对话
     const saveDialogs = async () => {
@@ -500,14 +468,16 @@ const chatAI = () => {
                 
                 if (saveSuccess) {
                     // 保存成功后实际退出
-                    Taro.navigateBack();
+                    Taro.reLaunch({ url: '/pages/index/index'});
                 }
                 return;
+            } else {
+                Taro.navigateBack();
             }
+        } else {
+            Taro.navigateBack();
         }
         
-        // 如果用户选择不保存或没有对话内容，直接退出
-        Taro.navigateBack();
     };
     
     // 确认对话框的保存并退出操作
@@ -529,21 +499,36 @@ const chatAI = () => {
     return (
         <View>
             <View className='gif-background' />
-            {/* <Video 
-                src= 'https://img.rainnn.top/bgvideo.mp4'
-                autoplay
-                loop
-                muted
-                className='bg-video'
-                controls={false}
-                showCenterPlayBtn={false}
-            /> */}
-            {outputText && <View 
-                className="dialog"
-                style={{ backgroundImage: `url(${dialog})` }}
-                >
-                <Text className='dialog-text'>{outputText}</Text>
+            <View className='exit-btn' onClick={handleSaveBeforeExit}>
+                <Image className='exit' src={ exitbtn } />
+            </View>
+
+            { outputText && <View className="dialog-wrapper">
+                <View className="dialog-container">
+                    {/* 对话框图片背景 */}
+                    <Image 
+                    className="dialog-image" 
+                    src={dialog} 
+                    mode="aspectFit" 
+                    />
+                    
+                    {/* 文本内容容器 - 根据图片特性精准定位 */}
+                    <View className="text-container">
+                    <ScrollView 
+                        scrollY 
+                        className="text-scroll"
+                        scrollWithAnimation
+                        enhanced
+                        showScrollbar={false}
+                    >
+                        <Text className="dialog-text">
+                        {outputText}
+                        </Text>
+                    </ScrollView>
+                    </View>
+                </View>
             </View>}
+
             {/* <Image className='role' src={role} /> */}
             <View className='user-input'>
                 <View className='text-input'>
