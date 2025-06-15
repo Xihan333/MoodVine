@@ -110,7 +110,7 @@ export default function Index() {
 
   const [loading, setLoading] = useState(false)
   const [calendarData, setCalendarData] = useState(null);
-  const [moodTag,setTag] = useState('情感细腻的观察者\n文思泉涌的麻花')
+  const [moodTag,setTag] = useState('')
   const [scripData,setScripData] = useState([])
 
   const fetchAllData = async () => {
@@ -134,6 +134,7 @@ export default function Index() {
       
       // 处理心情标签
       let tag = '情感细腻的观察者\n文思泉涌的麻花';
+      // let tag = '';
       if (moodRes.data?.code === 200 && Array.isArray(moodRes.data.data)) {
         tag = moodRes.data.data
           .filter(item => item.content)
@@ -175,8 +176,10 @@ export default function Index() {
   return (
     <View className='index'>
       <View className='header'>
-          <Image className='jar-button' src={jar} onClick={() => Taro.switchTab({ url: '/pages/score/score'})}/>
-          <Image className='diary-list' src={diary} onClick={() => Taro.navigateTo({ url: '/pages/diaryList/diaryList'})}/>
+          <View className='left-container'>
+            <Image className='jar-button' src={jar} onClick={() => Taro.switchTab({ url: '/pages/score/score'})}/>
+            <Image className='diary-list' src={diary} onClick={() => Taro.navigateTo({ url: '/pages/diaryList/diaryList'})}/> 
+          </View>
           <Text className='mood-tag'>
             { moodTag } 
           </Text>
