@@ -1,5 +1,5 @@
 import { View, Text, Image, Textarea, Video } from '@tarojs/components'
-import { Button } from '@taroify/core'
+import { Button, Dialog } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import React, { useState, useEffect, useRef } from 'react'
@@ -29,6 +29,9 @@ const chatAI = () => {
     const animationRef = useRef(null)
     const audioRef = useRef < Taro.InnerAudioContext | null > (null);
 
+    const [exitDialogVisible, setExitDialogVisible] = useState(false); // 退出确认对话框状态
+
+
     //添加对话辅助函数
     const addDialog = (sender, type, content) => {
         const newDialog = {
@@ -38,6 +41,8 @@ const chatAI = () => {
         };
         
         setDialogs(prev => [...prev, newDialog]);
+
+        console.log(dialogs)
         return newDialog;
     };
     
@@ -77,6 +82,8 @@ const chatAI = () => {
     const sendText = async() => {
         console.log('文字')
         setShowModal(false)
+        addDialog('user', 'text', chatText);
+
         const textChat = await request.post('/chat/ttsChat',{
                 'sessionId': sessionId,
                 'userId': Taro.getStorageSync('userInfo').id,
@@ -98,6 +105,8 @@ const chatAI = () => {
                     "pub-a3b9222a444c40648c0a11b32ecb2287.r2.dev"
                 );
                 console.log(newUrl)
+
+                addDialog('other', 'text', textChat.data.data.answer);
                 
                 smartResourceLoader(newUrl)
                     .then(() => console.log('音频切换成功'))
@@ -139,7 +148,7 @@ const chatAI = () => {
 
             if (data.msg) {
                 console.log(`上传成功！URL: ${data.msg}`);
-                // Taro.previewImage({ urls: [data.msg] }); // 预览图片
+                addDialog('user', 'image', data.msg);
             } else {
                 Taro.showToast({ icon: 'error', title: '图像上传失败' });
                 return;
@@ -168,6 +177,8 @@ const chatAI = () => {
                     "pub-a3b9222a444c40648c0a11b32ecb2287.r2.dev"
                 );
                 console.log(newUrl)
+
+                addDialog('other', 'text', picChat.data.data.answer);
                 
                 smartResourceLoader(newUrl)
                     .then(() => console.log('音频切换成功'))
@@ -357,6 +368,8 @@ const chatAI = () => {
         const data = JSON.parse(uploadRes.data || '{}');
         
         if (data.msg) {       
+            addDialog('user', 'audio', data.msg);
+
             const picChat = await request.post('/chat/ttsVoiceChat',{
                 'sessionId': sessionId,
                 'userId': Taro.getStorageSync('userInfo').id,
@@ -380,6 +393,8 @@ const chatAI = () => {
                     "pub-a3b9222a444c40648c0a11b32ecb2287.r2.dev"
                 );
                 console.log(newUrl)
+
+                addDialog('other', 'text', picChat.data.data.answer);
                 
                 smartResourceLoader(newUrl)
                     .then(() => console.log('音频切换成功'))
@@ -395,6 +410,121 @@ const chatAI = () => {
         console.error('音频上传失败:', error);
         }
     }
+
+    // 添加Taro页面事件处理
+    useEffect(() => {
+        // 监听页面卸载前事件
+        const pageInstance = Taro.getCurrentInstance();
+        
+        // 保存原始的事件处理函数
+        const originalOnUnload = pageInstance.page.onUnload;
+        
+        // 重写onUnload方法
+        pageInstance.page.onUnload = async function () {
+            
+            await handleSaveBeforeExit();
+            
+            // 调用原始事件处理函数
+            if (originalOnUnload) {
+                originalOnUnload.call(this);
+            }
+        };
+        
+        // 重写onBack方法
+        const originalOnBack = pageInstance.page.onBack;
+        pageInstance.page.onBack = function () {
+            handleSaveBeforeExit();
+            return true; // 返回true表示我们已经处理了返回事件，阻止默认行为
+        };
+        
+        return () => {
+            // 组件卸载时恢复原始事件处理函数
+            pageInstance.page.onUnload = originalOnUnload;
+            pageInstance.page.onBack = originalOnBack;
+        };
+    }, [dialogs]);
+    
+    // 处理保存对话
+    const saveDialogs = async () => {
+        try {
+            if (!dialogs || dialogs.length === 0) {
+                Taro.showToast({ title: '没有对话内容可保存', icon: 'none' });
+                return;
+            }
+            
+            // 将dialogs数组转为字符串
+            const dialogsString = JSON.stringify(dialogs);
+            console.log(dialogsString)
+            
+            Taro.showLoading({ title: '保存对话中...' });
+            
+            // 调用保存接口
+            const saveRes = await request.post('/user/scrip/saveScrip', {
+                content: dialogsString
+            });
+            
+            Taro.hideLoading();
+            
+            if (saveRes.data.code === 200) {
+                Taro.showToast({ title: '对话保存成功', icon: 'success' });
+                return true;
+            } else {
+                throw new Error('保存失败: ' + saveRes.data.message);
+            }
+        } catch (error) {
+            Taro.hideLoading();
+            Taro.showToast({ title: '保存失败', icon: 'none' });
+            console.error('对话保存失败:', error);
+            return false;
+        }
+    };
+    
+    // 处理退出前的保存
+    const handleSaveBeforeExit = async () => {
+        // 只有在有对话内容时才提示保存
+        if (dialogs.length > 0) {
+            // 弹出保存提示
+            const confirmRes = await new Promise(resolve => {
+                Taro.showModal({
+                    title: '提示',
+                    content: '您的对话内容尚未保存，是否保存后再退出？',
+                    confirmText: '保存',
+                    cancelText: '退出',
+                    success: resolve
+                });
+            });
+            
+            if (confirmRes.confirm) {
+                // 用户选择保存退出
+                const saveSuccess = await saveDialogs();
+                
+                if (saveSuccess) {
+                    // 保存成功后实际退出
+                    Taro.navigateBack();
+                }
+                return;
+            }
+        }
+        
+        // 如果用户选择不保存或没有对话内容，直接退出
+        Taro.navigateBack();
+    };
+    
+    // 确认对话框的保存并退出操作
+    // const handleConfirmExit = async () => {
+    //     setExitDialogVisible(false);
+    //     const saveSuccess = await saveDialogs();
+        
+    //     if (saveSuccess) {
+    //         Taro.navigateBack();
+    //     }
+    // };
+    
+    // 确认对话框的不保存退出操作
+    // const handleCancelExit = () => {
+    //     setExitDialogVisible(false);
+    //     Taro.navigateBack();
+    // };
 
     return (
         <View>
@@ -468,6 +598,22 @@ const chatAI = () => {
                 </View>
                 </View>
             )}
+
+            {/* 退出确认对话框 */}
+            {/* <Dialog
+                open={exitDialogVisible}
+                onClose={() => setExitDialogVisible(false)}
+            >
+                <Dialog.Header>结束对话</Dialog.Header>
+                <Dialog.Content>
+                    您确定要结束当前对话并保存吗？
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onClick={() => setExitDialogVisible(false)}>取消</Button>
+                    <Button onClick={handleCancelExit}>直接退出</Button>
+                    <Button onClick={handleConfirmExit}>保存并退出</Button>
+                </Dialog.Actions>
+            </Dialog> */}
         </View>
     );
 };
