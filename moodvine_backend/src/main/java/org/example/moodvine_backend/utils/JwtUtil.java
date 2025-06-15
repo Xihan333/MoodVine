@@ -71,7 +71,7 @@ public class JwtUtil {
         return token;
     }
 
-    //根据token获取主题（可以是email或open_id）
+    //根据token获取（可以是email或open_id）
     public String getSubjectFromToken(String token) {
         String subject = null;
         try {
