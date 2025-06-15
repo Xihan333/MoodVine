@@ -18,7 +18,7 @@ const MoodPage = () => {
   const [touchStartX, setTouchStartX] = useState(0)
   const [touchEndX, setTouchEndX] = useState(0)
   const containerRef = useRef(null)
-  const moodImages=[img1,img2,img3,img4,img5]
+  const moodImages=[img0,img1,img2,img3,img4,img5]
   
   // 处理滑动事件
   const handleTouchStart = (e) => {
