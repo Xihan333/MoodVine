@@ -30,21 +30,4 @@ def blip_analyze_image():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@blip_bp.route('/blip2-analyze-image', methods=['POST'])
-def blip2_analyze_image():
-    """处理图片上传和分析请求
-    支持传递图片URL（application/json）
-    """
-    try:
-        data = request.get_json()
-        image_url = data.get('image_url')
-        if not image_url:
-            return jsonify({"error": "Missing 'image_url'"}), 400
-
-        prompt = data.get('prompt', "a detailed description of the scene:")
-
-        description = blip2_service.blip2_analyze_image(image_url, prompt)
-        return jsonify({"description": description})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+zhh
