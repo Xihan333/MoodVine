@@ -116,13 +116,13 @@ const DiaryEditor = () => {
           const res2 = await request.post('/user/addScore',{
             addScore:5
           });
-          Taro.navigateBack({
-            delta: 1
-          });
           Taro.showToast({
             title: '发布成功',
             icon: 'success'
           })
+          Taro.reLaunch({
+            url: '/pages/index/index'
+          });
         }
         else{
           Taro.showToast({
