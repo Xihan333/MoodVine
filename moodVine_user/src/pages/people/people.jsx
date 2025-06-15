@@ -17,6 +17,7 @@ const People = () => {
     console.log(res.data)
     if ( res.data.code == 200 ) {
       setUserInfo(res.data.data)
+      Taro.setStorageSync('userInfo',res.data.data)
     }
   }
 

@@ -1,12 +1,5 @@
 <template>
-  <el-container>
-    <div class="el-side">
-      <Sidebar />
-    </div>
-    <div class="el-main">
-      <router-view />
-    </div>
-  </el-container>
+  <router-view></router-view>
 </template>
 
 <script>
