@@ -84,14 +84,10 @@ const chatAI = () => {
                 );
                 console.log(newUrl)
                 
-                delay(5000)
-                    .then(() => {
-                        handleAudioToggle(newUrl); // 3秒后执行目标函数
-                        console.log("3秒后成功触发音频切换");
-                    })
-                    .catch(error => {
-                        console.error("延迟执行失败:", error);
-                    });
+                smartResourceLoader(newUrl)
+                    .then(() => console.log('音频切换成功'))
+                    .catch(err => console.error('最终失败:', err.message));
+                
             }
         setChatText('')
     }
@@ -158,14 +154,10 @@ const chatAI = () => {
                 );
                 console.log(newUrl)
                 
-                delay(5000)
-                    .then(() => {
-                        handleAudioToggle(newUrl); // 3秒后执行目标函数
-                        console.log("3秒后成功触发音频切换");
-                    })
-                    .catch(error => {
-                        console.error("延迟执行失败:", error);
-                    });
+                smartResourceLoader(newUrl)
+                    .then(() => console.log('音频切换成功'))
+                    .catch(err => console.error('最终失败:', err.message));
+                
             }
 
         } catch (error) {
@@ -273,14 +265,54 @@ const chatAI = () => {
         return url.replace(regex, `$1${newDomain}`);
     }
 
-    function delay(timeout) {
-    return new Promise(resolve => {
-        setTimeout(() => {
-        resolve(); // 3秒后解析Promise
-        }, timeout);
-    });
+    function smartResourceLoader(url, maxAttempts = 10, initialDelay = 1000) {
+        return new Promise(async (resolve, reject) => {
+            let attempt = 0;
+            let delayTime = initialDelay;
+            
+            const attemptLoad = async () => {
+            attempt++;
+            try {
+                console.log(`尝试加载资源 (第 ${attempt} 次): ${url}`);
+                
+                // 先检查资源是否存在（使用HEAD请求减少带宽消耗）
+                const headRes = await Taro.request({
+                url,
+                method: 'HEAD',
+                timeout: 3000
+                });
+                
+                if (headRes.statusCode === 404) {
+                throw new Error('资源尚未就绪 (404)');
+                }
+                
+                // 资源存在时才执行完整操作
+                handleAudioToggle(url);
+                console.log(`资源加载成功: ${url}`);
+                resolve();
+            } catch (error) {
+                console.warn(`资源加载失败: ${error.message}`);
+                
+                // 指数退避策略：每次失败后等待时间加倍
+                // delayTime *= 2;
+                
+                if (attempt >= maxAttempts) {
+                reject(new Error(`资源加载失败，超过最大尝试次数 (${maxAttempts}次)`));
+                return;
+                }
+                
+                // 智能等待：根据错误类型调整策略
+                const nextDelay = error.message.includes('404') ? delayTime : 1000;
+                console.log(`等待 ${nextDelay}ms 后重试...`);
+                
+                await new Promise(res => setTimeout(res, nextDelay));
+                attemptLoad();
+            }
+            };
+            
+            attemptLoad();
+        });
     }
-
     // 上传音频文件
     const uploadAudioFile = async (filePath) => {
         if (!filePath) {
@@ -334,15 +366,10 @@ const chatAI = () => {
                 );
                 console.log(newUrl)
                 
-                delay(5000)
-                    .then(() => {
-                        handleAudioToggle(newUrl); // 3秒后执行目标函数
-                        console.log("3秒后成功触发音频切换");
-                    })
-                    .catch(error => {
-                        console.error("延迟执行失败:", error);
-                    });
-            }
+                smartResourceLoader(newUrl)
+                    .then(() => console.log('音频切换成功'))
+                    .catch(err => console.error('最终失败:', err.message));
+                }
             
         } else {
             throw new Error('上传失败: 无返回链接');
