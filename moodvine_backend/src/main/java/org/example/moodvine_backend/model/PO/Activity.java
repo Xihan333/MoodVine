@@ -22,11 +22,11 @@ public class Activity {
     private String name;
     private String description;
     @TableField("start_time")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date startTime;
 
     @TableField("finish_time")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date finishTime;
 
     private String picture;

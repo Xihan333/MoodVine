@@ -40,12 +40,16 @@ public class ClockInActivityServiceImpl implements ClockInActivityService{
             return ResponseData.failure(400, "今日已打卡");
         }
 
+        Date now = new Date();
         ClockInActivity record = new ClockInActivity();
         record.setUserId(userId);
         record.setActivityId(activityId);
         record.setContent(content);
         record.setPictures(String.join(",", pictures));
-        record.setDate(new Date());
+        record.setDate(now);
+
+        System.out.println(now);
+
         clockInActivityMapper.insert(record);
 
         return ResponseData.ok().msg("打卡成功").data(Collections.emptyMap());
