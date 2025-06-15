@@ -231,9 +231,7 @@ public class ActivityServiceImpl implements ActivityService{
 
         int clockInCount = clockInActivityMapper.countClockInRecordsByActivityId(activityId);
         if (clockInCount > 0) {
-            isSignUpMapper.deleteByActivityId(activityId);
-            return ResponseData.failure(400, "该活动已有打卡记录，无法删除活动。已清理报名记录");
-
+            return ResponseData.failure(400, "该活动已有打卡记录，无法删除活动");
         }
 
         int deleteSignUpCount = isSignUpMapper.deleteByActivityId(activityId);
