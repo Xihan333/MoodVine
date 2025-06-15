@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -28,7 +27,12 @@ public class ClockInActivityServiceImpl implements ClockInActivityService{
     public ResponseData<?> clockInActivity(Integer userId, Integer activityId, String content, List<String> pictures){
         Activity activity = activityMapper.selectById(activityId);
         if (activity == null) {
-            return ResponseData.failure(400, "活动不存在或已结束");
+            return ResponseData.failure(400, "活动不存在");
+        }
+
+
+        if (content == null || content.trim().isEmpty()) {
+            return ResponseData.failure(400, "打卡内容不能为空");
         }
 
         ClockInActivity existing = clockInActivityMapper.selectTodayClockIn(userId, activityId);
@@ -74,7 +78,6 @@ public class ClockInActivityServiceImpl implements ClockInActivityService{
             return vo;
         }).collect(Collectors.toList());
 
-        // 5. 构造响应
         Map<String, Object> data = new HashMap<>();
         data.put("period", period);
         data.put("clockIns", clockIns);

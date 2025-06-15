@@ -302,7 +302,7 @@ public class ChatService {
 
             System.out.println("转化后的文本内容：" + transcribedText);
 
-            String message = "这是用户发送的语音转文字内容（英文表示语音的情绪），请根据内容直接给出回答：\\n" + transcribedText;
+            String message = "这是用户发送的语音转文字内容（英文表示语音的情绪）：\\n" + transcribedText;
 
             ChatData chatData = new ChatData(message, sessionId, userId);
 

@@ -23,7 +23,17 @@ import request from '../../utils/request'
 import { setScrip } from '../../store/features/scripSlice';
 import { useSelector, useDispatch } from 'react-redux';
 
-const Scrips = () => {
+const Scrips = ( { data } ) => {
+
+   // 安全渲染处理
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <View className="empty-scrips">
+        <Text>暂无纸条数据</Text>
+      </View>
+    );
+  }
+
    // 定义固定顺序的四张背景图
   const backgroundImages = [bg1, bg2, bg3, bg4];
   
@@ -35,14 +45,6 @@ const Scrips = () => {
     4: require('../../assets/moodpaper/scared.png'),
     5: require('../../assets/moodpaper/mad.png'),
   };
-
-  const [data,setData] = useState([
-    { 'id': 1, 'mood': 1, 'sentance': '明天会更好', 'time': '5-29' },
-    { 'id': 2, 'mood': 2, 'sentance': '明天会更好明天会更好明天会更好明天会更好', 'time': '5-29' },
-    { 'id': 3, 'mood': 3, 'sentance': '明天会更好', 'time': '5-29' },
-    { 'id': 4, 'mood': 4, 'sentance': '明天会更好', 'time': '5-29' },
-    { 'id': 5, 'mood': 5, 'sentance': '明天会更好', 'time': '5-29' },
-  ])
 
   const dispatch = useDispatch();
   const handleDetail = (item) => {
@@ -67,7 +69,7 @@ const Scrips = () => {
         onClick={()=>handleDetail(item)}
       >
         <Image className='mood' src={moodIcon} />
-        <Text className="sentence">{item.sentance}</Text>
+        <Text className="sentence">{item.sentence}</Text>
         <Text className='time'>{ item.time }</Text>
       </View>
     );
@@ -110,33 +112,63 @@ export default function Index() {
 
   const [loading, setLoading] = useState(false)
   const [calendarData, setCalendarData] = useState(null);
-  const [moodTag,setTag] = useState('情感细腻的观察者\n文思泉涌的麻花')
+  const [moodTag,setTag] = useState('')
+  const [scripData,setScripData] = useState([])
 
-  const getMoodTag = async() => {
-  const res = await request.get('/user/tab/getTabs')
-  var tag = '情感细腻的观察者\n文思泉涌的麻花'
-  if (res.data.code === 200) {
-    // 提取content并拼接为字符串
-    console.log(res.data.data)
-    tag = res.data.data.map(item => item.content).join('\n');
-  }
-  setTag(tag); // 确保有返回值
-}
-
-const getCalendar = async() => {
-  const res = await request.get('/user/getMoodCalendar')
-  if ( res.data.code == 200 ) {
-    console.log(res.data.data)
-    setCalendarData(res.data.data)
-  }
-}
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      
+      // 并行发起所有请求
+      const [calendarRes, moodRes, scripRes] = await Promise.all([
+        request.get('/user/getMoodCalendar'),
+        request.get('/user/tab/getTabs'),
+        request.get('/user/scrip/getIndexScrip')
+      ]);
+      
+      // 处理心情日历数据
+      if (calendarRes.data?.code === 200) {
+        setCalendarData(calendarRes.data.data || []);
+      } else {
+        setCalendarData([]);
+        console.warn('心情日历数据异常:', calendarRes);
+      }
+      
+      // 处理心情标签
+      let tag = '情感细腻的观察者\n文思泉涌的麻花';
+      // let tag = '';
+      if (moodRes.data?.code === 200 && Array.isArray(moodRes.data.data)) {
+        tag = moodRes.data.data
+          .filter(item => item.content)
+          .map(item => item.content)
+          .join('\n');
+      }
+      setTag(tag);
+      
+      // 处理纸条数据
+      if (scripRes.data?.code === 200) {
+        setScripData(Array.isArray(scripRes.data.data) 
+          ? scripRes.data.data 
+          : []);
+      } else {
+        setScripData([]);
+        console.warn('纸条数据异常:', scripRes);
+      }
+      
+    } catch (err) {
+      console.error('数据加载失败:', err);
+      setCalendarData([]);
+      setScripData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useLoad(() => {
-    getCalendar()
-    getMoodTag()
+    fetchAllData();
   });
 
-  if (!calendarData) return (
+  if (!calendarData || !scripData) return (
     <View>
       Loading...
       <Button onClick={handleLogin}>微信一键登录</Button>
@@ -146,8 +178,10 @@ const getCalendar = async() => {
   return (
     <View className='index'>
       <View className='header'>
-          <Image className='jar-button' src={jar} onClick={() => Taro.navigateTo({ url: '/pages/score/score'})}/>
-          <Image className='diary-list' src={diary} onClick={() => Taro.navigateTo({ url: '/pages/diaryList/diaryList'})}/>
+          <View className='left-container'>
+            <Image className='jar-button' src={jar} onClick={() => Taro.navigateTo({ url: '/pages/score/score'})}/>
+            <Image className='diary-list' src={diary} onClick={() => Taro.navigateTo({ url: '/pages/diaryList/diaryList'})}/> 
+          </View>
           <Text className='mood-tag'>
             { moodTag } 
           </Text>
@@ -158,7 +192,7 @@ const getCalendar = async() => {
         <Text className='title'>纸条集</Text>
           <Text className='more' onClick={() => Taro.navigateTo({url: '/pages/moreScrips/moreScrips'})}> {'查看更多>'}</Text>
       </View>
-      <Scrips/>
+      { scripData && (<Scrips data={scripData} />)}
       <Image className='cute' src={cartoon} onClick={() => Taro.navigateTo({url: '/pages/chatAI/chatAI'})} />
     </View>
   )

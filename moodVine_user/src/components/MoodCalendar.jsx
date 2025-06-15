@@ -9,8 +9,7 @@ const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "O
 function getRecentFiveMonthsRange() {
   const endDate = new Date();
   const startDate = new Date();
-  startDate.setMonth(endDate.getMonth() - 4);
-  startDate.setDate(1);
+  startDate.setDate(endDate.getDate() - 132); // 140天前
   return { startDate, endDate };
 }
 

@@ -22,9 +22,11 @@ const chatAI = () => {
     const [audioUrl,setAudioUrl] = useState('')
     const [showModal, setShowModal] = useState(false);
     const [chatText,setChatText] = useState('')
+    const [isRecording, setIsRecording] = useState(false)
+    const recorderManager = useRef(Taro.getRecorderManager())
+    const animationRef = useRef(null)
     const audioRef = useRef < Taro.InnerAudioContext | null > (null);
 
-    // 简单直接的音频播放函数
     const handleAudioToggle = ( audioSrc ) => {
         try {
             // 直接创建并播放音频
@@ -173,9 +175,97 @@ const chatAI = () => {
         }
     };
 
-    const sendAudio = () => {
-        console.log('语音')
-        handleAudioToggle(audioUrl)
+    // 处理录音动画效果
+    useEffect(() => {
+        if (!isRecording) return;
+        
+        const createAnimation = () => {
+        const animation = Taro.createAnimation({
+            duration: 800,
+            timingFunction: 'ease-in-out'
+        })
+        
+        animation.scale(1.1).step()
+        animation.scale(1.0).step()
+        
+        return animation;
+        }
+        
+        const animate = () => {
+        if (!isRecording) return;
+        const animation = createAnimation()
+        animationRef.current = animation
+        requestAnimationFrame(() => {
+            animation.export()
+        })
+        
+        setTimeout(animate, 1600)
+        }
+        
+        animate();
+        
+        return () => {
+        // 清理动画定时器
+        animationRef.current = null;
+        }
+    }, [isRecording])
+
+    // 安全的动画获取函数
+    const getAnimationScale = () => {
+        if (!animationRef.current) return 1;
+        try {
+        return animationRef.current.actions?.[0]?.args?.[0] || 1;
+        } catch (e) {
+        return 1;
+        }
+    };
+
+    // 录音参数配置
+    const recordOptions = {
+    duration: 60000,       // 录音时长（毫秒）
+    sampleRate: 44100,     // 采样率
+    numberOfChannels: 1,   // 声道数
+    encodeBitRate: 192000, // 编码码率
+    format: 'mp3',         // 音频格式
+    };
+
+    function startRecord() {
+        setIsRecording(true)
+        // 设置录音事件监听
+        recorderManager.current.onStart(() => {
+            console.log('录音开始');
+        });
+        
+        recorderManager.current.onStop((res) => {
+            console.log('录音结束', res.tempFilePath);
+            // setAudioUrl(res.tempFilePath); // 保存录音文件路径
+            uploadAudioFile(res.tempFilePath)
+            
+        });
+        
+        recorderManager.current.onError((err) => {
+            console.error('录音错误:', err);
+            setIsRecording(false);
+        });
+  
+        // 开始录音
+        recorderManager.current.start(recordOptions);
+    }
+
+    // 停止录音并播放
+    const stopAndPlay = async() => {
+        setIsRecording(false)
+        recorderManager.current.stop(); // 停止录音
+        
+    }
+
+    const handleRecord = () => {
+        if (isRecording) {
+            // recorderManager.current.stop();
+            stopAndPlay();
+            return;
+        }
+        startRecord()
     }
 
     function replaceDomain(url, newDomain) {
@@ -191,6 +281,79 @@ const chatAI = () => {
     });
     }
 
+    // 上传音频文件
+    const uploadAudioFile = async (filePath) => {
+        if (!filePath) {
+        Taro.showToast({ title: '没有录音文件', icon: 'error' });
+        return;
+        }
+        
+        Taro.showLoading({ title: '上传中...' });
+        
+        try {
+        const uploadRes = await Taro.uploadFile({
+            url: 'http://localhost:2025/file/upload',
+            filePath,
+            name: 'file',
+            formData: { 
+            type: 'audio',
+            timestamp: Date.now()
+            },
+        });
+
+        Taro.hideLoading();
+        
+        if (uploadRes.statusCode !== 200) {
+            throw new Error(`上传失败，状态码: ${uploadRes.statusCode}`);
+        }
+        
+        const data = JSON.parse(uploadRes.data || '{}');
+        
+        if (data.msg) {       
+            const picChat = await request.post('/chat/ttsVoiceChat',{
+                'sessionId': sessionId,
+                'userId': Taro.getStorageSync('userInfo').id,
+                'voiceUrl': data.msg 
+            })
+
+            console.log(picChat.data)
+            if ( picChat.data.code == 200 ) {
+                setText(picChat.data.data.answer)
+                setSessionId(picChat.data.data.sessionId)
+
+                console.log(sessionId)
+
+                console.log(picChat.data.data.text)
+                setAudioUrl(picChat.data.data.text)
+
+                console.log(audioUrl)
+
+                const newUrl = replaceDomain(
+                    picChat.data.data.text,
+                    "pub-a3b9222a444c40648c0a11b32ecb2287.r2.dev"
+                );
+                console.log(newUrl)
+                
+                delay(5000)
+                    .then(() => {
+                        handleAudioToggle(newUrl); // 3秒后执行目标函数
+                        console.log("3秒后成功触发音频切换");
+                    })
+                    .catch(error => {
+                        console.error("延迟执行失败:", error);
+                    });
+            }
+            
+        } else {
+            throw new Error('上传失败: 无返回链接');
+        }
+        } catch (error) {
+        Taro.hideLoading();
+        Taro.showToast({ icon: 'error', title: '上传失败' });
+        console.error('音频上传失败:', error);
+        }
+    }
+
     return (
         <View>
             <Text>{outputText}</Text>
@@ -200,7 +363,15 @@ const chatAI = () => {
                     <Image className='text-icon' src={textIcon} onClick={() => setShowModal(true)} />
                 </View>
                 <View className='audio-input'>
-                    <Image className='audio-icon' src={audioIcon} onClick={sendAudio} />
+                    <Image 
+                        className={`audio-icon ${isRecording ? 'recording' : ''}`}
+                        style={{ 
+                        transform: isRecording ? `scale(${getAnimationScale()})` : 'scale(1)',
+                        transition: 'transform 0.3s ease-in-out'
+                        }}
+                        src={audioIcon} 
+                        onClick={handleRecord}
+                    />
                 </View>
                 <View className='pic-input'>
                     <Image className='pic-icon' src={picIcon} onClick={sendPic} />
