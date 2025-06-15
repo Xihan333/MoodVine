@@ -66,7 +66,7 @@
         position: relative;
         border-radius: 6px;
         overflow: hidden;
-        flex-basis: calc(33.333% - 8px); /* 减去间距 */
+        flex-basis: 100%; /* 减去间距 */
         aspect-ratio: 1;
         .image-item {
             width: 100%;
