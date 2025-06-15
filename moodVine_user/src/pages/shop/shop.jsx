@@ -55,6 +55,7 @@ const Shop = () => {
       <View className='reward-info'>
         <Image src={item.content} className='reward-image'/>
         <Text className='reward-name'>{item.name}</Text>
+        <Text className='reward-price'>￥{item.point}</Text>
       </View>
       <View className='reward-status'>
         <Text 

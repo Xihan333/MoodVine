@@ -25,7 +25,7 @@ const activitySlice = createSlice({
       state.isClockIn = true;
     },
     setId: (state,action) => {
-      state.isClockIn = action.payload;
+      state.id = action.payload;
     },
     setIsClockIn: (state, action) => {
       state.isClockIn = action.payload;

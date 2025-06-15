@@ -7,7 +7,7 @@ import './activityDetail.module.scss';
 import img0 from '../../assets/activity0.jpg'
 import img1 from '../../assets/activity1.png'
 import { signUp, clockIn, setId, setIsClockIn as setActivityIsClockIn, setClockIns as setActivityClockIns } from '../../store/features/activitySlice';
-import { setIsClockIn } from '../../store/features/userSlice';
+import { setIsClockIn as setUserIsClockIn } from '../../store/features/userSlice';
 
 const ActivityDetail = () => {
   const activity = useSelector((state) => state.activity);
@@ -19,7 +19,7 @@ const ActivityDetail = () => {
   //   { id: 2, date: '2024-12-22', content: '今天吃饭了', pictures: [] },
   //   { id: 3, date: '2024-12-23', content: '今天吃饭了', pictures: [] },
   // ]);  
-  const [clockIns, setClockIns] = useState([]);
+  // const [clockIns, setClockIns] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -31,13 +31,14 @@ const ActivityDetail = () => {
         });
         if (res.data.code === 200) {
           setPeriod(res.data.data.period);
-          setClockIns(res.data.data.clockIns);
+          dispatch(setActivityClockIns(res.data.data.clockIns));
           // 获取当前日期
           const today = new Date();
           const todayFormatted = today.toISOString().split('T')[0]; // 格式为 "YYYY-MM-DD"
           // 获取数组的最后一个元素
-          const lastClockIn = clockIns[clockIns.length - 1];  
+          const lastClockIn = res.data.data.clockIns[res.data.data.clockIns.length - 1];  
           // 检查最后一个元素的 date 是否是今天
+          console.log('sss',lastClockIn)
           if (lastClockIn && lastClockIn.date === todayFormatted) {
             dispatch(setActivityIsClockIn(true))
           } else {
@@ -46,19 +47,18 @@ const ActivityDetail = () => {
         }
       } catch (error) {
         console.error('Error fetching clock-ins:', error);
-        // 可以在这里处理错误，例如设置一个错误状态
       }
     };
     fetchData();
 
-    // 获取当前日期
-    const today = new Date();
-    const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    if(clockIns.length!=0 && clockIns[clockIns.length-1]==formattedDate){
-      dispatch(clockIn());
-    }
+    return () => {
+      Taro.reLaunch({
+        url: '/pages/activityList/activityList'
+      });
+    };
   }, []); // 空依赖数组确保仅执行一次
 
+  // 处理报名逻辑
   const handleSignup = async (activityId) => {
     const res = await request.post('/user/activity/signUp',{
       "activityId":activityId
@@ -72,16 +72,15 @@ const ActivityDetail = () => {
   // 处理打卡逻辑
   const handleClockin = (activityId) => {
     dispatch(setId(activityId));
-    dispatch(setIsClockIn(true));
+    dispatch(setUserIsClockIn(true));
     Taro.navigateTo({
       url: '/pages/diaryEditor/diaryEditor',
     });
   };
 
   // 处理查看逻辑
-  const handleCheck = (activity) => {
-    dispatch(setActivityClockIns(clockIns));
-    dispatch(setIsClockIn(true));
+  const handleCheck = () => {
+    dispatch(setUserIsClockIn(true));
     Taro.navigateTo({
       url: '/pages/diaryList/diaryList',
     });
@@ -103,8 +102,8 @@ const ActivityDetail = () => {
               {Array.from({ length: period }).map((_, index) => (
                 <View
                   key={index}
-                  className={`circle ${index < clockIns.length ? 'clocked' : ''}`}
-                  onClick={()=>handleCheck(activity)}
+                  className={`circle ${index < activity.clockIns.length ? 'clocked' : ''}`}
+                  onClick={handleCheck}
                 />
               ))}
             </View>

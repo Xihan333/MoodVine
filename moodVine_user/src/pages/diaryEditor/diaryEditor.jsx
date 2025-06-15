@@ -15,17 +15,6 @@ const DiaryEditor = () => {
   const isClockIn = useSelector((state) => state.user.isClockIn);
   const activityId = useSelector((state) => state.activity.id);
   
-  if(isClockIn){
-    wx.setNavigationBarTitle({
-      title: '打卡'
-    });
-  }
-  else{
-    wx.setNavigationBarTitle({
-      title: '日记'
-    });
-  }
-  
   // const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [images, setImages] = useState([])
@@ -34,17 +23,27 @@ const DiaryEditor = () => {
   const imageMaxNum = 1; // 最大可上传图片数量
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await request.get('/user/reward/getAllRewards');
-        if (res.data.code === 200) {
-          setPaperStyles(res.data.data.rewards.filter(reward => reward.isHad));
+    if(isClockIn){
+      wx.setNavigationBarTitle({
+        title: '打卡'
+      });
+    }
+    else{
+      wx.setNavigationBarTitle({
+        title: '日记'
+      });
+      const fetchData = async () => {
+        try {
+          const res = await request.get('/user/reward/getAllRewards');
+          if (res.data.code === 200) {
+            setPaperStyles(res.data.data.rewards.filter(reward => reward.isHad));
+          }
+        } catch (error) {
+          console.error('Error fetching rewards:', error);
         }
-      } catch (error) {
-        console.error('Error fetching rewards:', error);
-      }
-    };
-    fetchData();
+      };
+      fetchData();
+    }
   }, []); // 空依赖数组确保仅执行一次
 
   // 上传图片
@@ -120,9 +119,12 @@ const DiaryEditor = () => {
             title: '发布成功',
             icon: 'success'
           })
-          Taro.reLaunch({
-            url: '/pages/index/index'
-          });
+          if(isClockIn) Taro.navigateBack(-1)
+          else{
+            Taro.reLaunch({
+              url: '/pages/index/index'
+            });
+          }
         }
         else{
           Taro.showToast({
@@ -134,10 +136,7 @@ const DiaryEditor = () => {
         console.log('上传失败：未获取到URL');
       }
     } catch (error) {
-      Taro.hideLoading();
-      console.error('上传失败:', error);
       console.log(`上传失败: ${error.errMsg || '网络错误'}`);
-      Taro.showToast({ icon: 'error', title: '上传失败' });
     }
   }
   
@@ -146,7 +145,12 @@ const DiaryEditor = () => {
       {/* 主体部分 */}
       <View 
         className='diary-main'
-        style={{ 
+        style={
+          isClockIn ? { 
+          backgroundColor: 'white',
+          backgroundSize: '100% 100%'
+        }:
+        {
           backgroundImage: `url(${paperStyles[selectedPaper].content})`,
           backgroundSize: '100% 100%'
         }}
