@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper
 public interface DiaryMapper extends BaseMapper<Diary> {
     //获取指定月份的日记
-    @Select("SELECT id, content, pictures, date, user_id, reward_id AS notepaper FROM diary where user_id=#{user_id} and YEAR(date)=#{year} and MONTH(date)=#{month} ORDER BY date ASC")
+    @Select("SELECT id, content, pictures, date, user_id, reward_id AS notepaper FROM diary where user_id=#{user_id} and YEAR(date)=#{year} and MONTH(date)=#{month} ORDER BY id ASC")
     List<Diary> getDiariesByMonth(Integer user_id, Integer year,Integer month);
 
     //添加日记
