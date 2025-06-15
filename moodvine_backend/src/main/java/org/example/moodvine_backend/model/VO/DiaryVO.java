@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class DiaryVO {
     private Integer id;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "Asia/Shanghai")
     private Date date;
 
     private String content;

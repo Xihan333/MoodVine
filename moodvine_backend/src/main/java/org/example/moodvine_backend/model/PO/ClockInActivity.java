@@ -24,9 +24,9 @@ public class ClockInActivity {
     private String content;
 
     @TableField("picture")
-    private String pictures; // 存储为JSON字符串
+    private String pictures;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "Asia/Shanghai")
     private Date date;
 
     @TableField("activity_id")

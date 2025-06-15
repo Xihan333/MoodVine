@@ -86,34 +86,36 @@ const getWxCode = async () => {
   return code; 
 };
 
-const handleLogin = async () => {
-  try {
-    const code = await getWxCode();
-    console.log(code)
-    const res = await request.post('/user/wxlogin', { code });
-    console.log(res.data)
-
-    if (res.data.code === 200) {
-      const { token, user } = res.data.data; // 假设返回 token 和用户数据
-      Taro.setStorageSync('token', token); // 存储 token
-      Taro.setStorageSync('userInfo', user); // 存储用户信息
-      Taro.setStorageSync('score', user.score); // 存储用户信息
-      Taro.showToast({ title: '登录成功', icon: 'success' });
-    } else {
-      Taro.showToast({ title: '登录失败', icon: 'none' });
-    }
-  } catch (error) {
-    Taro.showToast({ title: '登录失败', icon: 'none' });
-  }
-};
-
-
 export default function Index() {
 
   const [loading, setLoading] = useState(false)
   const [calendarData, setCalendarData] = useState(null);
   const [moodTag,setTag] = useState('')
-  const [scripData,setScripData] = useState([])
+  const [scripData,setScripData] = useState(null)
+
+  const handleLogin = async () => {
+    try {
+      const code = await getWxCode();
+      console.log(code)
+      const res = await request.post('/user/wxlogin', { code });
+      console.log(res.data)
+
+      if (res.data.code === 200) {
+        const { token, user } = res.data.data; // 假设返回 token 和用户数据
+        Taro.setStorageSync('token', token); // 存储 token
+        Taro.setStorageSync('userInfo', user); // 存储用户信息
+        Taro.showToast({ 
+          title: '登录成功', 
+          icon: 'success',
+        });
+        fetchAllData()
+      } else {
+        Taro.showToast({ title: '登录失败', icon: 'none' });
+      }
+    } catch (error) {
+      Taro.showToast({ title: '登录失败', icon: 'none' });
+    }
+  };
 
   const fetchAllData = async () => {
     try {
@@ -166,9 +168,12 @@ export default function Index() {
 
   useLoad(() => {
     fetchAllData();
+    console.log(calendarData)
+    console.log(scripData)
   });
 
-  if (!calendarData || !scripData) return (
+  // if (!Taro.getStorageSync('token') ) return (
+  if (!calendarData || !scripData || !Taro.getStorageSync('token')) return (
     <View>
       Loading...
       <Button onClick={handleLogin}>微信一键登录</Button>
