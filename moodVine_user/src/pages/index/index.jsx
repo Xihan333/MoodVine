@@ -15,6 +15,7 @@ import bg3 from '../../assets/moodpaper/pink.png'     // 生气背景
 import bg4 from '../../assets/moodpaper/purple.png' 
 import cartoon from '../../assets/cute.png'
 import diary from '../../assets/diary-icon.png'
+import bglogin from '../../assets/cover.png'
 
 import 'normalize.css'
 import './index.scss'
@@ -177,9 +178,11 @@ export default function Index() {
 
   // if (!Taro.getStorageSync('token') ) return (
   if (!calendarData || !scripData || !Taro.getStorageSync('token')) return (
-    <View>
-      Loading...
-      <Button onClick={handleLogin}>微信一键登录</Button>
+    <View 
+        className='login-page'
+        style={{ backgroundImage: `url(${bglogin})` }}
+      >
+      <Button className='login-btn' onClick={handleLogin}>微信一键登录</Button>
     </View>
   );
 

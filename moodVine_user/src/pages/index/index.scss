@@ -113,3 +113,36 @@
   height: 205px;
   left: 40%;
 }
+
+.login-page {
+  position: fixed; /* 固定定位覆盖全屏 */
+  top: 0;
+  left: 0;
+  width: 100vw; /* 视口宽度100% */
+  height: 100vh; /* 视口高度100% */
+  background-size: cover; /* 覆盖整个容器 */
+  background-position: center center; /* 图片居中显示 */
+  background-repeat: no-repeat; /* 不重复 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直居中 */
+  align-items: center; /* 水平居中 */
+}
+
+.login-btn {
+  position: absolute; /* 绝对定位 */
+  top: 85%; /* 距离顶部70%，达到中间偏下位置 */
+  transform: translateY(-50%); /* 垂直偏移自身高度一半 */
+  
+  /* 按钮样式 */
+  width: 70%;
+  max-width: 300px;
+  padding: 20rpx 40rpx;
+  background-color: #fcb391; /* 微信绿色 */
+  color: #8B4513;
+  font-size: 32rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.2);
+  border: none;
+  z-index: 10; /* 确保按钮在上层 */
+}
