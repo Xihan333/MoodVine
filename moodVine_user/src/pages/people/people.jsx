@@ -1,31 +1,29 @@
 import { View, Text, Image, Input } from '@tarojs/components'
 import { Button } from '@taroify/core'
+import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
 import { Close } from '@taroify/icons'
 
 import 'normalize.css'
 import './people.scss'
+import request from '../../utils/request'
 
 const People = () => {
-  const [showModal, setShowModal] = useState(false);
-  const userInfo = {
-    avatar: require('../../assets/reward0.jpg'),
-    nickname: '笨蛋鱼鱼',
-    bio: '个人简介...'
-  };
+  const [userInfo, setUserInfo] = useState({})
 
-  const handleSave = () => {
-    // 这里可以添加保存逻辑
-    Taro.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
-    setShowModal(false);
-  };
+  const getUserInfo = async() => {
+    const res = await request.get('/user/getUserInfo')
+    console.log(res.data)
+    if ( res.data.code == 200 ) {
+      setUserInfo(res.data.data)
+    }
+  }
 
-  const [nickname,setNickName] = useState( userInfo.nickname );
-  const [bio,setBio] = useState( userInfo.vio );
+  useLoad(() => {
+    getUserInfo()
+  });
+
 
   return (
     <View>
@@ -33,18 +31,18 @@ const People = () => {
         <Image className="avatar" src={ userInfo.avatar } mode="aspectFill" />
         <View className='middle'>
           <Text className='nickname'>{ userInfo.nickname }</Text>
-          <Text className='unknown'>{userInfo.bio}</Text>
+          <Text className='unknown'>破壳日：{userInfo.birthday}</Text>
         </View>
         <Text 
           className='seemore' 
-          onClick={() => setShowModal(true)}
+          onClick={() => Taro.navigateTo({ url: '/pages/peopleDetail/peopleDetail'})}
         >
           {'查看更多>'}
         </Text>
       </View>
 
       {/* 用户信息编辑弹窗 */}
-      {showModal && (
+      {/* {showModal && (
         <View className='modal-overlay'>
           <View className='modal-content'>
             <Close 
@@ -86,7 +84,7 @@ const People = () => {
             </Button>
           </View>
         </View>
-      )}
+      )} */}
     </View>
   );
 };

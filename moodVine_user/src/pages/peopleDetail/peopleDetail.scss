@@ -1,0 +1,32 @@
+.people-detail-container {
+  padding: 16px;
+  min-height: 100vh;
+  
+  .avatar-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #eee;
+  }
+  
+  .taroify-field__label {
+    flex: none;
+    width: 80px;
+  }
+  
+  .save-button {
+    width: 90%;
+    background-color: #fcb391;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    margin: auto;
+    margin-top: 40px;
+    
+    &:active {
+        background-color: #8B4513;
+    }
+    }
+}

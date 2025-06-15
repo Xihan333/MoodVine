@@ -1,0 +1,10 @@
+/* 全局样式文件 */
+.bg-video {
+  position: fixed;   /* 固定定位 */
+  top: 0;
+  left: 0;
+  z-index: -1;       /* 置于底层 */
+  width: 100vw;      /* 覆盖全屏 */
+  height: 100vh;
+  min-height: 100%;  /* 兼容性保障 */
+}

@@ -1,5 +1,5 @@
 import { View, Text, Image } from '@tarojs/components'
-import { Button } from '@taroify/core'
+import { Button, Empty } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
@@ -29,7 +29,10 @@ const Scrips = ( { data } ) => {
   if (!Array.isArray(data) || data.length === 0) {
     return (
       <View className="empty-scrips">
-        <Text>暂无纸条数据</Text>
+        <Empty className="empty-result">
+          <Empty.Image src="search" />
+          <Empty.Description>暂无纸条，快去找小漫聊天吧~</Empty.Description>
+        </Empty>
       </View>
     );
   }
