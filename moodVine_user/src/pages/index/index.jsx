@@ -14,6 +14,7 @@ import bg2 from '../../assets/moodpaper/green.png'     // 难过背景
 import bg3 from '../../assets/moodpaper/pink.png'     // 生气背景
 import bg4 from '../../assets/moodpaper/purple.png' 
 import cartoon from '../../assets/cute.png'
+import diary from '../../assets/diary-icon.png'
 
 import 'normalize.css'
 import './index.scss'
@@ -113,7 +114,7 @@ export default function Index() {
 
   const getMoodTag = async() => {
   const res = await request.get('/user/tab/getTabs')
-  var tag = ''
+  var tag = '情感细腻的观察者\n文思泉涌的麻花'
   if (res.data.code === 200) {
     // 提取content并拼接为字符串
     console.log(res.data.data)
@@ -131,8 +132,6 @@ const getCalendar = async() => {
 }
 
   useLoad(() => {
-    // const parsedData = JSON.parse(dataString);
-    // setCalendarData(parsedData); // 模拟异步加载
     getCalendar()
     getMoodTag()
   });
@@ -148,6 +147,7 @@ const getCalendar = async() => {
     <View className='index'>
       <View className='header'>
           <Image className='jar-button' src={jar} onClick={() => Taro.navigateTo({ url: '/pages/score/score'})}/>
+          <Image className='diary-list' src={diary} onClick={() => Taro.navigateTo({ url: '/pages/diaryList/diaryList'})}/>
           <Text className='mood-tag'>
             { moodTag } 
           </Text>

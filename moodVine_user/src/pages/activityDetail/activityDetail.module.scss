@@ -3,6 +3,7 @@
   height: 100vh; /* 确保页面高度占满整个视口 */
   display: flex;
   flex-direction: column;
+  padding-bottom: 130px;
 }
 
 .activity-image {
@@ -47,6 +48,9 @@
 }
 
 .signup-button {
+  height: 80px;
+  line-height: 80px;
+  margin: auto;
   width: 90%;
   border-radius: 50px;
   background-color: #ffb362;
@@ -86,6 +90,9 @@
 
 .circles-container {
   display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  gap: 10px;
 }
 
 .circle {
@@ -101,14 +108,13 @@
 }
 
 .clockin-button {
+  width: 20%;
   height: 48px;
+  line-height: 48px;
   background-color: #ffb362;
   color: #ffffff;
   font-size: 30px;
-  display: flex;
-  align-items: center;
   margin: 0px;
-  padding: 20px;
   &:active {
     background-color: #ff9933;
   }

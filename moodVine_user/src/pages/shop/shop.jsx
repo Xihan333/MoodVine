@@ -15,10 +15,18 @@ const Shop = () => {
     { id: 2, name: '奖励2', content: reward0Img, point: 5, isHad: 0 },
     { id: 3, name: '奖励3', content: reward0Img, point: 5, isHad: 1 },
   ]);
-  useEffect(async () => {
-    const res = await request.get('/user/reward/getAllRewards');
-    if(res.data.code===200)
-      setRewards(res.data.data.rewards);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await request.get('/user/reward/getAllRewards');
+        if (res.data.code === 200) {
+          setRewards(res.data.data.rewards);
+        }
+      } catch (error) {
+        console.error('Error fetching rewards:', error);
+      }
+    };
+    fetchData();
   }, []); // 空依赖数组确保仅执行一次
 
   const handleRedeem = async (item) => {

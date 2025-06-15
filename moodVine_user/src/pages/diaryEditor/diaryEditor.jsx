@@ -5,8 +5,27 @@ import Taro from '@tarojs/taro'
 import './diaryEditor.scss'
 import request from '../../utils/request';
 import img1 from '../../assets/paper1.jpg'
+import { useSelector, useDispatch } from 'react-redux';
+import { clockIn } from '../../store/features/activitySlice';
+import { setIsClockIn } from '../../store/features/userSlice';
 
+// 打卡和日记共用
 const DiaryEditor = () => {
+  const dispatch = useDispatch();
+  const isClockIn = useSelector((state) => state.user.isClockIn);
+  const activityId = useSelector((state) => state.activity.id);
+  
+  if(isClockIn){
+    wx.setNavigationBarTitle({
+      title: '打卡'
+    });
+  }
+  else{
+    wx.setNavigationBarTitle({
+      title: '日记'
+    });
+  }
+  
   // const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [images, setImages] = useState([])
@@ -14,11 +33,18 @@ const DiaryEditor = () => {
   const [selectedPaper, setSelectedPaper] = useState(0)
   const imageMaxNum = 1; // 最大可上传图片数量
 
-  useEffect(async () => {
-    const res = await request.get('/user/reward/getAllRewards');
-    if(res.data.code===200){
-      setPaperStyles(res.data.data.rewards.filter(reward => reward.isHad));
-    }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await request.get('/user/reward/getAllRewards');
+        if (res.data.code === 200) {
+          setPaperStyles(res.data.data.rewards.filter(reward => reward.isHad));
+        }
+      } catch (error) {
+        console.error('Error fetching rewards:', error);
+      }
+    };
+    fetchData();
   }, []); // 空依赖数组确保仅执行一次
 
   // 上传图片
@@ -67,13 +93,26 @@ const DiaryEditor = () => {
       const data = JSON.parse(uploadRes.data); // 需要手动解析
       if (data.msg) {
         console.log(`上传成功！URL: ${data.msg}`);
-        const res = await request.post('/user/diary/addDiary',{
-          content:content,
-          pictures:[data.msg],
-          notepaper:paperStyles[selectedPaper].id
-        });
+
+        let res;
+        // 是否打卡
+        if(isClockIn){
+          res = await request.post('/user/activity/clockIn',{
+            activityId: activityId,
+            content:content,
+            pictures:[data.msg],
+          });
+        }
+        else{
+          res = await request.post('/user/diary/addDiary',{
+            content:content,
+            pictures:[data.msg],
+            notepaper:paperStyles[selectedPaper].id
+          });
+        }
         // 反馈
         if(res.data.code===200){
+          dispatch(setIsClockIn(false));
           const res2 = await request.post('/user/addScore',{
             addScore:5
           });
@@ -164,6 +203,7 @@ const DiaryEditor = () => {
       {/* 底部操作栏 */}
       <View className='action-bar'>
         {/* 信纸选择 */}
+        { !isClockIn && 
         <View className='paper-selector'>
           {paperStyles.map((_, index) => (
             <View
@@ -175,6 +215,7 @@ const DiaryEditor = () => {
             </View>
           ))}
         </View>
+        }
 
         {/* 发布按钮 */}
         <Button className='publish-btn' onClick={handlePublish}>

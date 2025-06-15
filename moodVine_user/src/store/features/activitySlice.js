@@ -12,6 +12,7 @@ const activitySlice = createSlice({
     finishTime: "2024-12-31",
     isSignUp: false,
     isClockIn: false,
+    clockIns: []
   },
   reducers: {
     setActivity: (state,action) => {
@@ -22,12 +23,21 @@ const activitySlice = createSlice({
     },
     clockIn: (state) => {
       state.isClockIn = true;
-    }
+    },
+    setId: (state,action) => {
+      state.isClockIn = action.payload;
+    },
+    setIsClockIn: (state, action) => {
+      state.isClockIn = action.payload;
+    },
+    setClockIns: (state, action) => {
+      state.clockIns = action.payload;
+    },
   },
 });
 
 // 导出 action creators
-export const { setActivity, signUp, clockIn } = activitySlice.actions;
+export const { setActivity, signUp, clockIn, setId, setIsClockIn, setClockIns } = activitySlice.actions;
 
 // 导出 reducer
 export default activitySlice.reducer;

@@ -15,12 +15,16 @@ const Activity = () => {
     { id: 2, name: '午餐周挑战(〃｀ 3′〃)', description: '', picture: img1, startTime: '2024-11-21', finishTime: "2024-12-31", isSignUp: 0 },
     { id: 3, name: '晚餐周挑战(〃｀ 3′〃)', description: '', picture: img0, startTime: '2024-11-21', finishTime: "2024-12-31", isSignUp: 1 }
   ]);
-  // const [loading, setLoading] = useState(true);
-  // useEffect(() => {
-  //   const res = request.get('/activity/getAllActivities');
-  //   console.log(res.data);
-  //   setActivities(res.data);
-  // }, []); // 空依赖数组确保仅执行一次
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await request.get('/user/activity/getAllActivities');
+      if (res.data.code === 200) {
+        setActivities(res.data.data.activities);
+      }
+    }
+    fetchData();
+  }, []); // 空依赖数组确保仅执行一次
 
   const dispatch = useDispatch();
   const handleDetail = (item) => {
@@ -34,8 +38,22 @@ const Activity = () => {
     // TODO 处理打卡逻辑
   };
 
-  const handleSignup = (itemId) => {
-    // TODO 处理报名逻辑
+  const handleSignup = async (itemId) => {  
+    const res = await request.post('/user/activity/signUp',{
+      activityId:itemId
+    });
+    if(res.data.code===200){
+      setActivities(activities.map(item => {
+        if (item.id === itemId) {
+          return {
+            ...item,
+            isSignUp: true
+          };
+        }
+        return item;
+      }));
+      Taro.showToast({ title: '报名成功', icon: 'none' });
+    }
   };
 
   const listItems = activities.map((item) => (
@@ -48,9 +66,15 @@ const Activity = () => {
       <Text className="activity-name">{item.name}</Text>
       <View className="activity-status">
         {item.isSignUp ? (
-          <Text className="item-clockin" onClick={()=>handleClockin(item.id)}>打卡</Text>
+          <Text className="item-clockin" onClick={(e)=>{
+            e.stopPropagation(); // 阻止事件冒泡
+            handleClockin(item.id);
+          }}>已报名</Text>
         ) : (
-          <Text className="item-signup" onClick={()=>handleSignup(item.id)}>报名</Text>
+          <Text className="item-signup" onClick={(e)=>{
+            e.stopPropagation(); // 阻止事件冒泡
+            handleSignup(item.id);
+          }}>报名</Text>
         )}
       </View>
     </View>

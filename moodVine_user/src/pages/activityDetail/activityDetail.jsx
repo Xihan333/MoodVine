@@ -1,3 +1,4 @@
+import Taro from '@tarojs/taro';
 import { React, useState, useEffect } from 'react';
 import { View, Text, Button, Image } from '@tarojs/components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -5,56 +6,85 @@ import request from '../../utils/request';
 import './activityDetail.module.scss';
 import img0 from '../../assets/activity0.jpg'
 import img1 from '../../assets/activity1.png'
-import { signUp, clockIn } from '../../store/features/activitySlice';
+import { signUp, clockIn, setId, setIsClockIn as setActivityIsClockIn, setClockIns as setActivityClockIns } from '../../store/features/activitySlice';
+import { setIsClockIn } from '../../store/features/userSlice';
 
 const ActivityDetail = () => {
   const activity = useSelector((state) => state.activity);
 
   // 获取打卡列表
   const [period, setPeriod] = useState(7);
-  const [clockIns, setClockIns] = useState([
-    { id: 1, date: '2024-12-21', content: '今天吃饭了', pictures: [img0,img1] },
-    { id: 2, date: '2024-12-22', content: '今天吃饭了', pictures: [] },
-    { id: 3, date: '2024-12-23', content: '今天吃饭了', pictures: [] },
-  ]);
-  const [loading, setLoading] = useState(true);
-  // useEffect(() => {
-  //   const res = request.post('/activity/getClockIns',{
-  //     activityId: activity.id
-  //   });
-  //   console.log(res.data);
-  //   setPeriod();
-  //   setClockIns(res.data);
-  //   setLoading();
-
-  //   // 获取当前日期
-  //   const today = new Date();
-  //   const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  //   if(clockIns.length!=0 && clockIns[clockIns.length-1]==formattedDate){
-  //     dispatch(clockIn());
-  //   }
-  // }, []); // 空依赖数组确保仅执行一次
+  // const [clockIns, setClockIns] = useState([
+  //   { id: 1, date: '2024-12-21', content: '今天吃饭了', pictures: [img0,img1] },
+  //   { id: 2, date: '2024-12-22', content: '今天吃饭了', pictures: [] },
+  //   { id: 3, date: '2024-12-23', content: '今天吃饭了', pictures: [] },
+  // ]);  
+  const [clockIns, setClockIns] = useState([]);
 
   const dispatch = useDispatch();
-  // TODO 处理报名逻辑
-  const handleSignup = (activityId) => {
-    const res = request.post('/activity/signUp',{
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await request.post('/user/activity/getClockIns', {
+          activityId: activity.id
+        });
+        if (res.data.code === 200) {
+          setPeriod(res.data.data.period);
+          setClockIns(res.data.data.clockIns);
+          // 获取当前日期
+          const today = new Date();
+          const todayFormatted = today.toISOString().split('T')[0]; // 格式为 "YYYY-MM-DD"
+          // 获取数组的最后一个元素
+          const lastClockIn = clockIns[clockIns.length - 1];  
+          // 检查最后一个元素的 date 是否是今天
+          if (lastClockIn && lastClockIn.date === todayFormatted) {
+            dispatch(setActivityIsClockIn(true))
+          } else {
+            dispatch(setActivityIsClockIn(false))
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching clock-ins:', error);
+        // 可以在这里处理错误，例如设置一个错误状态
+      }
+    };
+    fetchData();
+
+    // 获取当前日期
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if(clockIns.length!=0 && clockIns[clockIns.length-1]==formattedDate){
+      dispatch(clockIn());
+    }
+  }, []); // 空依赖数组确保仅执行一次
+
+  const handleSignup = async (activityId) => {
+    const res = await request.post('/user/activity/signUp',{
       "activityId":activityId
     });
-    console.log(res.data);
-    // 修改按钮样式
-    dispatch(signUp());
+    if(res.data.code===200){
+      Taro.showToast({ title: '报名成功', icon: 'none' });
+      dispatch(signUp());
+    }
   };
 
-  // TODO 处理打卡逻辑
+  // 处理打卡逻辑
   const handleClockin = (activityId) => {
-    // 跳转到写日记页面，maybe需要传参 isClockIn activityId
-    // 今日已打卡
+    dispatch(setId(activityId));
+    dispatch(setIsClockIn(true));
+    Taro.navigateTo({
+      url: '/pages/diaryEditor/diaryEditor',
+    });
   };
 
-  // TODO 处理查看逻辑
+  // 处理查看逻辑
   const handleCheck = (activity) => {
-    // 跳转到看日记页面，maybe需要传参
+    dispatch(setActivityClockIns(clockIns));
+    dispatch(setIsClockIn(true));
+    Taro.navigateTo({
+      url: '/pages/diaryList/diaryList',
+    });
   };
 
   return (

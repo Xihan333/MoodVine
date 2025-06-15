@@ -10,7 +10,9 @@ import fruitImg3 from '../../assets/果实3.png'
 
 const VinePage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [moods, setMoods] = useState([{date:'2023-03-01',mood:0},{date:'2023-03-02',mood:0},{date:'2023-03-03',mood:0},{date:'2023-03-04',mood:0},{date:'2023-03-05',mood:0},{date:'2023-03-06',mood:0},{date:'2023-03-07',mood:0},{date:'2023-03-08',mood:0},{date:'2023-03-09',mood:0},{date:'2023-03-10',mood:0},{date:'2023-03-11',mood:0},{date:'2023-03-12',mood:0}]);
+  // const [moods, setMoods] = useState([{date:'2023-03-01',mood:0},{date:'2023-03-02',mood:0},{date:'2023-03-03',mood:0},{date:'2023-03-04',mood:0},{date:'2023-03-05',mood:0},{date:'2023-03-06',mood:0},{date:'2023-03-07',mood:0},{date:'2023-03-08',mood:0},{date:'2023-03-09',mood:0},{date:'2023-03-10',mood:0},{date:'2023-03-11',mood:0},{date:'2023-03-12',mood:0}]);
+  // const [moods, setMoods] = useState([]);
+  let moods=[];
   const [items, setItems] = useState([]);
   const [direction, setDirection] = useState(0); // 每个月由五个树枝组成。这个变量用于控制第一个树枝的方向，便于两个月之间的衔接自然
   const horiOffsets=[[0,25,65,60,80,60,45],[0,30,0,20,0,25,50]] // 果实在藤蔓上的水平排版，分为开口向左和向右的版本
@@ -40,7 +42,6 @@ const VinePage = () => {
             // 随机选择果实图片
             const fruitImages = [fruitImg1,fruitImg2,fruitImg3];
             const randomImage = fruitImages[Math.floor(Math.random() * fruitImages.length)];
-            // TODO果实位置由offset决定
             return (
               <Image
                 key={`fruit-${i}-${item}`}
@@ -71,18 +72,27 @@ const VinePage = () => {
   }
 
   // 初始化心情数据
-  useEffect(() => {
-    renderVine();
-    // const year = currentDate.getFullYear();
-    // const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
-    // const res = request.post('/getMoods',{
-    //   date:`${year}-${month}`,
-    // });
-    // // TODO 反馈
-    // if(res.data){
-    //   setMoods(res.data.data);
-    // }
+  useEffect(async () => {
+    const fetchMoods = async () => {
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
+      const res = await request.post('/user/getMoods',{
+        date:`${year}-${month}`,
+      });
+      if(res.data.code===200){
+        if(res.data.data.length===0){
+          Taro.showToast({ title: '暂无数据',icon:'none' })
+        }
+        else{
+          moods=res.data.data;
+          renderVine();
+        }
+      }
+    }
+    fetchMoods();
   }, [currentDate]);
+
+
 
   // 触底加载
   const loadMore = () => {

@@ -4,6 +4,7 @@ import { View, Text, Image, Button } from '@tarojs/components';
 import request from '../../utils/request';
 import { useDidShow } from '@tarojs/taro';
 import './moodPage.scss'; // 引入样式文件
+import img0 from '../../assets/moodpaper/default_mood.png'
 import img1 from '../../assets/moodpaper/power.png'
 import img2 from '../../assets/moodpaper/peace.png'
 import img3 from '../../assets/moodpaper/sad.png'
@@ -12,7 +13,7 @@ import img5 from '../../assets/moodpaper/mad.png'
 
 const MoodPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [moods, setMoods] = useState([{date:'2023-03-23',mood:0}]);
+  const [moods, setMoods] = useState([]);
   const [position, setPosition] = useState(0)
   const [touchStartX, setTouchStartX] = useState(0)
   const [touchEndX, setTouchEndX] = useState(0)
@@ -42,18 +43,24 @@ const MoodPage = () => {
     setPosition(0)
   }
 
-  // 初始化心情数据
   useEffect(() => {
-    // const year = currentDate.getFullYear();
-    // const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
-    // const res = request.post('/getMoods',{
-    //   date:`${year}-${month}`,
-    // });
-    // // TODO 反馈
-    // if(res.data){
-    //   setMoods(res.data.data);
-    // }
-  }, [currentDate]);
+    const fetchMoods = async () => {
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
+      try {
+        const res = await request.post('/user/getMoods', {
+          date: `${year}-${month}`,
+        });
+        if (res.data.code === 200) {
+          setMoods(res.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching moods:', error);
+      }
+    };
+ 
+    fetchMoods();
+  }, [currentDate]); // 依赖数组中包含 currentDate，确保在 currentDate 变化时重新获取数据
 
   // 切换月份
   const changeMonth = (offset) => {
@@ -64,6 +71,7 @@ const MoodPage = () => {
 
   // 渲染日历
   const renderCalendar = () => {
+    console.log('hhh',moods)
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth() + 1;
     const daysInMonth = new Date(year, month, 0).getDate();
@@ -75,20 +83,20 @@ const MoodPage = () => {
     }
 
     function renderMoodImage(i, j) {
-      if (j < moods.length && String(i).padStart(2, '0') === moods[j].date.substring(8)) {
+      if (moods.length!==0 && j < moods.length && String(i).padStart(2, '0') === moods[j].date.substring(8)) {
         const currentMood = moods[j].mood;
-        j++; // 增加 j 的值
+        moodIndex++; // 增加 moodIndex 的值
         return <Image src={moodImages[currentMood]} className="mood-image" />;
       }
-      return null;
+      return <Image src={img0} className="mood-image" />;;
     }
 
-    let j=0;
+    let moodIndex=0;
     for (let i = 1; i <= daysInMonth; i++) {
       calendarDays.push(
         <View key={i} className="day-container">
           <Text>{i}</Text>
-          {renderMoodImage(i,j)}
+          {renderMoodImage(i,moodIndex)}
         </View>
       );
     }

@@ -4,35 +4,50 @@ import Taro from '@tarojs/taro';
 import request from '../../utils/request';
 import './diaryList.scss'; // 样式文件
 import img1 from '../../assets/paper1.jpg'
+import { useSelector, useDispatch } from 'react-redux';
+import { setIsClockIn } from '../../store/features/userSlice';
 
 const DiaryList = () => {
+  const dispatch = useDispatch();
+  const isClockIn = useSelector((state) => state.user.isClockIn);
+  const clockIns = useSelector((state) => state.activity.clockIns);
+
   // 初始日期设为当前月份
   const [currentDate, setCurrentDate] = useState(new Date());
-  // 模拟日记数据
   const [diaries, setDiaries] = useState([]);
+  const [papers, setPapers] = useState([]);
 
   // 根据月份查询日记
   useEffect(() => {
-    // 模拟数据
-    const mockDiaries = getMockDiaries(currentDate);
-    setDiaries(mockDiaries);
-    // 发送请求
-    // const year = currentDate.getFullYear();
-    // const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
-    // const res = request.post('/diary/getDiaries',{
-    //     date:`${year}-${month}`,
-    // });
-    // setDiaries("diaries": [
-    //     {
-    //         "id": 0,
-    //         "date": "2026-03-10",
-    //         "content": "esse consectetur officia laborum",
-    //         "pictures": [
-    //             "https://loremflickr.com/400/400?lock=2430577633255441"
-    //         ],
-    //         "notepaper":0
-    //     }
-    // ]);
+    if(isClockIn){
+      wx.setNavigationBarTitle({
+        title: '打卡'
+      });
+      setDiaries(clockIns);
+    }
+    else{
+      wx.setNavigationBarTitle({
+        title: '日记'
+      });
+      // 模拟数据
+      // const mockDiaries = getMockDiaries(currentDate);
+      // setDiaries(mockDiaries);
+      // 发送请求
+      const fetchData = async () => {
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
+        const res = await request.post('/user/diary/getDiaries',{
+            date:`${year}-${month}`,
+        });
+        setDiaries(res.data.data.diaries);
+        setPapers(res.data.data.papers);
+      }
+      fetchData();
+    }
+
+    return () => {
+      dispatch(setIsClockIn(false));
+    };
   }, [currentDate]);
 
   // 获取上个月
@@ -108,6 +123,7 @@ const DiaryList = () => {
   return (
     <View className='diary-container'>
       {/* 顶部导航 */}
+      { !isClockIn && 
       <View className='month-navigator'>
         <View className='month-content'>
             <Text 
@@ -125,6 +141,7 @@ const DiaryList = () => {
             </Text>
         </View>
       </View>
+      }
       
       {/* 日记列表 */}
       <ScrollView 
@@ -137,7 +154,7 @@ const DiaryList = () => {
             key={index} 
             className='diary-card'
             style={{ 
-                backgroundImage: `url(${diary.notepaper})`,
+                backgroundImage: `url(${papers[index]})`,
                 backgroundSize: '100% 100%'
             }}
           >
