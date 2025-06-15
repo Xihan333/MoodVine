@@ -98,7 +98,7 @@ export default function Index() {
   const [scripData,setScripData] = useState(null)
 
   const handleLogin = async () => {
-    try {
+    // try {
       const code = await getWxCode();
       console.log(code)
       const res = await request.post('/user/wxlogin', { code });
@@ -106,8 +106,9 @@ export default function Index() {
 
       if (res.data.code === 200) {
         const { token, user } = res.data.data; // 假设返回 token 和用户数据
+        Taro.setStorageSync('score', user.score); // 存储用户信息
         Taro.setStorageSync('token', token); // 存储 token
-        Taro.setStorageSync('userInfo', user); // 存储用户信息
+        Taro.setStorageSync('userInfo', user); // 存储用户信息        
         Taro.showToast({ 
           title: '登录成功', 
           icon: 'success',
@@ -116,9 +117,9 @@ export default function Index() {
       } else {
         Taro.showToast({ title: '登录失败', icon: 'none' });
       }
-    } catch (error) {
-      Taro.showToast({ title: '登录失败', icon: 'none' });
-    }
+    // } catch (error) {
+    //   Taro.showToast({ title: '登录失败', icon: 'none' });
+    // }
   };
 
   const fetchAllData = async () => {

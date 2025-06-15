@@ -72,7 +72,7 @@ const VinePage = () => {
   }
 
   // 初始化心情数据
-  useEffect(async () => {
+  useEffect(() => {
     const fetchMoods = async () => {
       const year = currentDate.getFullYear();
       const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1，并补零
@@ -97,12 +97,14 @@ const VinePage = () => {
   // 触底加载
   const loadMore = () => {
     const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() + 1);
+    newDate.setMonth(newDate.getMonth() - 1);
     setCurrentDate(newDate);
   };
 
   return (
     <View className='main-container'>
+      <Text className='jiyu'>每一次记录</Text>
+      <Text className='jiyu'>都结成珍贵的果实</Text>
       {items.map((item, index) => (
       <View key={index}>
         {item}
