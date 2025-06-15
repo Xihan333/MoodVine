@@ -8,8 +8,8 @@ import potImg from '../../assets/pot.png'
 import './score.scss'
 
 export default function Score() {
-  dispatch(setScore(Taro.getStorageSync('score')))
   const dispatch = useDispatch();
+  dispatch(setScore(Taro.getStorageSync('score')))
   const score = useSelector((state) => state.user.score);
   const totalScore = 100;
   

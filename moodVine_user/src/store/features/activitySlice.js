@@ -12,7 +12,12 @@ const activitySlice = createSlice({
     finishTime: "2024-12-31",
     isSignUp: false,
     isClockIn: false,
-    clockIns: []
+    clockIns: [{
+      "id":0,
+      "date": "",
+      "content": "",
+      "pictures": [""]
+    }]
   },
   reducers: {
     setActivity: (state,action) => {
@@ -21,8 +26,9 @@ const activitySlice = createSlice({
     signUp: (state) => {
       state.isSignUp = true;
     },
-    clockIn: (state) => {
+    clockIn: (state, action) => {
       state.isClockIn = true;
+      state.clockIns.push(action.payload);
     },
     setId: (state,action) => {
       state.id = action.payload;

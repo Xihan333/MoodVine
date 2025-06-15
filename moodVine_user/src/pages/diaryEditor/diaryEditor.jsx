@@ -6,8 +6,8 @@ import './diaryEditor.scss'
 import request from '../../utils/request';
 import img1 from '../../assets/paper1.jpg'
 import { useSelector, useDispatch } from 'react-redux';
-import { clockIn } from '../../store/features/activitySlice';
 import { addScore, setIsClockIn } from '../../store/features/userSlice';
+import { setIsClockIn as setActivityIsClockIn, setClockIns as setActivityClockIns, clockIn } from '../../store/features/activitySlice';
 
 // 打卡和日记共用
 const DiaryEditor = () => {
@@ -109,22 +109,35 @@ const DiaryEditor = () => {
             notepaper:paperStyles[selectedPaper].id
           });
         }
-        // 反馈
+        // 
         if(res.data.code===200){
+          // 若打卡，保证返回页面同步更新
+          if(isClockIn){
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要 +1
+            const day = String(today.getDate()).padStart(2, '0');
+            dispatch(clockIn({'content':content,'pitures':[data.msg],'date':`${year}-${month}-${day}`}));
+            dispatch(setActivityIsClockIn(true));
+          }
+          // 还原到日记页面
           dispatch(setIsClockIn(false));
+          // 加积分
           const theAddScore=5;
           const res2 = await request.post('/user/addScore',{
             addScore:theAddScore
           });
+          // 修改本地和store里的score值
           if(res2.data.code===200){
-            console.log('hhh')
             dispatch(addScore(theAddScore));
             Taro.setStorageSync('score', Taro.getStorageSync('score')+theAddScore); // 存储用户信息
           }
+          // 反馈
           Taro.showToast({
             title: '发布成功',
             icon: 'success'
           })
+          // 打卡和日记 返回的页面不同
           if(isClockIn) Taro.navigateBack(-1)
           else{
             Taro.reLaunch({
