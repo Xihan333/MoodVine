@@ -2,6 +2,7 @@ package org.example.moodvine_backend.service;
 
 import org.example.moodvine_backend.mapper.DiaryMapper;
 import org.example.moodvine_backend.mapper.MoodMapper;
+import org.example.moodvine_backend.mapper.RewardMapper;
 import org.example.moodvine_backend.mapper.TabMapper;
 import org.example.moodvine_backend.model.PO.*;
 import org.example.moodvine_backend.model.VO.DiaryVO;
@@ -31,21 +32,27 @@ public class DiaryService {
     private ChatClient labelAnalysisClient;
     @Autowired
     private TabMapper tabMapper;
+    @Autowired
+    private RewardMapper rewardMapper;
 
     public ResponseData getDiariesByMonth(Integer userId, Integer year, Integer month) {
         List<Diary> diaries = diaryMapper.getDiariesByMonth(userId, year, month);
+        List<String> paperList = new ArrayList<>();
         List<DiaryVO> diaryList = diaries.stream().map(diary -> {
             DiaryVO diaryVO = new DiaryVO();
             diaryVO.setId(diary.getId());
             diaryVO.setDate(diary.getDate());
             diaryVO.setContent(diary.getContent());
             diaryVO.setPictures(diary.getPicturesList());
+            Reward reward = rewardMapper.findRewardById(diary.getNotepaper());
+            paperList.add(reward.getContent());
             diaryVO.setNotepaper(diary.getNotepaper());
             return diaryVO;
         }).collect(Collectors.toList());
 
         Map<String, Object> data = new HashMap<>();
         data.put("diaries", diaryList);
+        data.put("papers", paperList);
         return new ResponseData(200, "", data);
     }
 
