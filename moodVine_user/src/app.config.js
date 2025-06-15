@@ -14,7 +14,8 @@ export default defineAppConfig({
     'pages/vinePage/vinePage',
     'pages/moreScrips/moreScrips',
     'pages/scripDetail/scripDetail',
-    'pages/chatAI/chatAI'
+    'pages/chatAI/chatAI',
+    'pages/peopleDetail/peopleDetail'
   ],
   window: {
     backgroundTextStyle: 'light',

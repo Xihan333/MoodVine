@@ -1,4 +1,4 @@
-import { View, Text, Image, Textarea } from '@tarojs/components'
+import { View, Text, Image, Textarea, Video } from '@tarojs/components'
 import { Button } from '@taroify/core'
 import { useLoad } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
@@ -13,6 +13,21 @@ import textIcon from '../../assets/text-icon.png'
 import 'normalize.css'
 import './chatAI.scss'
 import request from '../../utils/request'
+import bg from '../../assets/bgvideo.mp4'
+
+const VideoBackground = () => {
+  return (
+    <Video
+      src={bg}
+      loop={true}          // 关键：开启循环
+      autoplay={true}      // 自动播放
+      muted={true}         // 静音避免移动端播放限制[1,6](@ref)
+      objectFit="cover"    // 填充容器
+      className="bg-video" // 自定义样式
+      controls={false}     // 隐藏控制条
+    />
+  );
+};
 
 const chatAI = () => {
 
@@ -383,8 +398,11 @@ const chatAI = () => {
 
     return (
         <View>
-            <Text>{outputText}</Text>
-            <Image className='role' src={role} />
+           <VideoBackground />
+            <View>
+                <Text>{outputText}</Text>
+            </View>
+            {/* <Image className='role' src={role} /> */}
             <View className='user-input'>
                 <View className='text-input'>
                     <Image className='text-icon' src={textIcon} onClick={() => setShowModal(true)} />
