@@ -7,7 +7,7 @@ import request from '../../utils/request';
 import img1 from '../../assets/paper1.jpg'
 import { useSelector, useDispatch } from 'react-redux';
 import { clockIn } from '../../store/features/activitySlice';
-import { setIsClockIn } from '../../store/features/userSlice';
+import { addScore, setIsClockIn } from '../../store/features/userSlice';
 
 // 打卡和日记共用
 const DiaryEditor = () => {
@@ -112,9 +112,15 @@ const DiaryEditor = () => {
         // 反馈
         if(res.data.code===200){
           dispatch(setIsClockIn(false));
+          const theAddScore=5;
           const res2 = await request.post('/user/addScore',{
-            addScore:5
+            addScore:theAddScore
           });
+          if(res2.data.code===200){
+            console.log('hhh')
+            dispatch(addScore(theAddScore));
+            Taro.setStorageSync('score', Taro.getStorageSync('score')+theAddScore); // 存储用户信息
+          }
           Taro.showToast({
             title: '发布成功',
             icon: 'success'
