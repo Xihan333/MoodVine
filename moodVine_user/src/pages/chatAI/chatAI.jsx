@@ -9,25 +9,11 @@ import role from '../../assets/111.png'
 import audioIcon from '../../assets/audio-icon.png'
 import picIcon from '../../assets/pic-icon.png'
 import textIcon from '../../assets/text-icon.png'
+import dialog from '../../assets/dialog.png'
 
 import 'normalize.css'
 import './chatAI.scss'
 import request from '../../utils/request'
-import bg from '../../assets/bgvideo.mp4'
-
-const VideoBackground = () => {
-  return (
-    <Video
-      src={bg}
-      loop={true}          // 关键：开启循环
-      autoplay={true}      // 自动播放
-      muted={true}         // 静音避免移动端播放限制[1,6](@ref)
-      objectFit="cover"    // 填充容器
-      className="bg-video" // 自定义样式
-      controls={false}     // 隐藏控制条
-    />
-  );
-};
 
 const chatAI = () => {
 
@@ -38,9 +24,23 @@ const chatAI = () => {
     const [showModal, setShowModal] = useState(false);
     const [chatText,setChatText] = useState('')
     const [isRecording, setIsRecording] = useState(false)
+    const [dialogs, setDialogs] = useState([]);  //对话记录状态
     const recorderManager = useRef(Taro.getRecorderManager())
     const animationRef = useRef(null)
     const audioRef = useRef < Taro.InnerAudioContext | null > (null);
+
+    //添加对话辅助函数
+    const addDialog = (sender, type, content) => {
+        const newDialog = {
+            sender,
+            type,
+            content,
+        };
+        
+        setDialogs(prev => [...prev, newDialog]);
+        return newDialog;
+    };
+    
 
     const handleAudioToggle = ( audioSrc ) => {
         try {
@@ -398,10 +398,22 @@ const chatAI = () => {
 
     return (
         <View>
-           <VideoBackground />
-            <View>
-                <Text>{outputText}</Text>
-            </View>
+            <View className='gif-background' />
+            {/* <Video 
+                src= 'https://img.rainnn.top/bgvideo.mp4'
+                autoplay
+                loop
+                muted
+                className='bg-video'
+                controls={false}
+                showCenterPlayBtn={false}
+            /> */}
+            {outputText && <View 
+                className="dialog"
+                style={{ backgroundImage: `url(${dialog})` }}
+                >
+                <Text className='dialog-text'>{outputText}</Text>
+            </View>}
             {/* <Image className='role' src={role} /> */}
             <View className='user-input'>
                 <View className='text-input'>

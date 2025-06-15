@@ -31,7 +31,7 @@ const People = () => {
         <Image className="avatar" src={ userInfo.avatar } mode="aspectFill" />
         <View className='middle'>
           <Text className='nickname'>{ userInfo.nickname }</Text>
-          {/* <Text className='unknown'>{userInfo.bio}</Text> */}
+          <Text className='unknown'>破壳日：{userInfo.birthday}</Text>
         </View>
         <Text 
           className='seemore' 
