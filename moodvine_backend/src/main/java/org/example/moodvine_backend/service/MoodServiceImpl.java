@@ -32,6 +32,7 @@ public class MoodServiceImpl implements MoodService {
         List<Map<String, Object>> formattedMoods = moods.stream().map(mood -> {
             Map<String, Object> moodMap = new HashMap<>();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
             moodMap.put("date", sdf.format(mood.getDate()));
             if (mood.getMood() != null) {
                 moodMap.put("mood", Integer.parseInt(mood.getMood().getCode()));

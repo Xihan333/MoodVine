@@ -13,6 +13,7 @@ import org.example.moodvine_backend.utils.EmailUtil;
 import org.example.moodvine_backend.utils.JwtUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.example.moodvine_backend.utils.NickNameGenerator;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,11 +100,13 @@ public class UserService {
                     user = new User();
                     user.setOpenId(openid);
                     user.setUserType(UserType.USER);
-                    user.setScore(0); // 初始蜜罐值为0
-                    user.setAvatar(""); // 设置默认头像
-                    user.setNickName(""); // 设置默认昵称
+                    user.setScore(0);
+                    user.setAvatar("");
+
+                    String randomNickname = NickNameGenerator.generateRandomNickname();
+                    user.setNickName(randomNickname);
                     userMapper.insert(user);
-                    // 重新从数据库获取用户，确保所有字段都已加载
+
                     user = userMapper.findByOpenId(openid);
                 }
 

@@ -29,7 +29,6 @@ public class Activity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date finishTime;
 
-    @JsonRawValue
     private String picture;
 
     private Integer number;

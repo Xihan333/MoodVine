@@ -59,7 +59,6 @@ public class ActivityServiceImpl implements ActivityService{
 
     @Override
     public ResponseData getUserActivities(Integer userId) {
-        // 获取用户报名的活动ID列表
         List<Integer> activityIds = isSignUpMapper.selectActivityIdByUserId(userId);
         if (activityIds.isEmpty()) {
             return ResponseData.ok()
@@ -67,13 +66,11 @@ public class ActivityServiceImpl implements ActivityService{
                     .msg("用户暂未报名任何活动");
         }
 
-        // 批量查询活动详情
+        // 批量查询活动
         List<Activity> activities = activityMapper.selectBatchIds(activityIds);
 
-        // 设置报名标志
         activities.forEach(act -> act.setIsSignUp(true));
 
-        // 构造响应
         Map<String, Object> data = new HashMap<>();
         data.put("activities", activities);
 
@@ -84,7 +81,6 @@ public class ActivityServiceImpl implements ActivityService{
 
     @Override
     public ResponseData getAllActivitiesWithSignUpStatus(Integer userId) {
-        // 获取所有活动
         List<Activity> allActivities = activityMapper.findAllActivities();
 
         // 获取用户已报名的活动ID集合
@@ -96,7 +92,6 @@ public class ActivityServiceImpl implements ActivityService{
             activity.setIsSignUp(signedUpActivityIds.contains(activity.getId()));
         });
 
-        // 构造响应
         Map<String, Object> data = new HashMap<>();
         data.put("activities", allActivities);
 
@@ -129,6 +124,21 @@ public class ActivityServiceImpl implements ActivityService{
 
     @Override
     public ResponseData addActivity(ActivityDTO activityDTO) {
+        if (activityDTO.getName() == null || activityDTO.getName().trim().isEmpty()) {
+            return ResponseData.failure(400, "活动名称不能为空");
+        }
+        if (activityDTO.getDescription() == null || activityDTO.getDescription().trim().isEmpty()) {
+            return ResponseData.failure(400, "活动描述不能为空");
+        }
+        if (activityDTO.getPicture() == null || activityDTO.getPicture().trim().isEmpty()) {
+            return ResponseData.failure(400, "活动图片不能为空");
+        }
+        if (activityDTO.getStartTime() == null) {
+            return ResponseData.failure(400, "开始时间不能为空");
+        }
+        if (activityDTO.getFinishTime() == null) {
+            return ResponseData.failure(400, "结束时间不能为空");
+        }
         if (activityDTO.getStartTime().after(activityDTO.getFinishTime())) {
             return ResponseData.failure(400, "结束时间不能早于开始时间");
         }
@@ -156,32 +166,48 @@ public class ActivityServiceImpl implements ActivityService{
         if (editActivityDTO.getId() == null) {
             return ResponseData.failure(400, "活动ID不能为空");
         }
+
         Activity activity = activityMapper.selectById(editActivityDTO.getId());
         if (activity == null) {
             return ResponseData.notFound().msg("活动不存在");
         }
-        if (editActivityDTO.getStartTime() != null &&
-                editActivityDTO.getFinishTime() != null &&
-                editActivityDTO.getStartTime().after(editActivityDTO.getFinishTime())) {
-            return ResponseData.failure(400, "结束时间不能早于开始时间");
-        }
 
         if (editActivityDTO.getName() != null) {
+            if (editActivityDTO.getName().trim().isEmpty()) {
+                return ResponseData.failure(400, "活动名称不能为空");
+            }
             activity.setName(editActivityDTO.getName());
         }
+
         if (editActivityDTO.getDescription() != null) {
+            if (editActivityDTO.getDescription().trim().isEmpty()) {
+                return ResponseData.failure(400, "活动描述不能为空");
+            }
             activity.setDescription(editActivityDTO.getDescription());
         }
+
         if (editActivityDTO.getPicture() != null) {
+            if (editActivityDTO.getPicture().trim().isEmpty()) {
+                return ResponseData.failure(400, "活动图片不能为空");
+            }
             activity.setPicture(editActivityDTO.getPicture());
         }
+
+        if (editActivityDTO.getStartTime() != null &&
+                editActivityDTO.getFinishTime() != null) {
+
+            if (editActivityDTO.getStartTime().after(editActivityDTO.getFinishTime())) {
+                return ResponseData.failure(400, "结束时间不能早于开始时间");
+            }
+        }
+
         if (editActivityDTO.getStartTime() != null) {
             activity.setStartTime(editActivityDTO.getStartTime());
         }
+
         if (editActivityDTO.getFinishTime() != null) {
             activity.setFinishTime(editActivityDTO.getFinishTime());
         }
-
         int result = activityMapper.updateById(activity);
         if (result > 0) {
             return ResponseData.ok().msg("修改成功");
