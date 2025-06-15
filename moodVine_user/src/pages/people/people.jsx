@@ -88,7 +88,7 @@ const People = () => {
           className="week-analysis"
           style={{ backgroundImage: `url(${bgweek})` }}
         >
-            <Text className="week-content">周报</Text>
+            <Text className="week-content" onClick={() => { Taro.navigateTo({ url: '/pages/weekSummary/weekSummary' })}}>周报</Text>
         </View>
         <View 
           className='activity'

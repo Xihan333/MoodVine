@@ -15,7 +15,8 @@ export default defineAppConfig({
     'pages/moreScrips/moreScrips',
     'pages/scripDetail/scripDetail',
     'pages/chatAI/chatAI',
-    'pages/peopleDetail/peopleDetail'
+    'pages/peopleDetail/peopleDetail',
+    'pages/weekSummary/weekSummary',
   ],
   window: {
     backgroundTextStyle: 'light',
