@@ -14,11 +14,11 @@ import java.util.Map;
 @Mapper
 public interface ScripMapper extends BaseMapper<Scrip> {
     // 查询所有纸条，按时间倒序排列
-    @Select("SELECT * FROM scrip WHERE user_id = #{userId} ORDER BY time DESC")
+    @Select("SELECT * FROM scrip WHERE user_id = #{userId} ORDER BY id DESC")
     List<Scrip> getAllScrips(Integer userId);
 
     // 查询最新的5张纸条，按时间倒序排列
-    @Select("SELECT * FROM scrip WHERE user_id = #{userId} ORDER BY time DESC LIMIT 5")
+    @Select("SELECT * FROM scrip WHERE user_id = #{userId} ORDER BY id DESC LIMIT 5")
     List<Scrip> getIndexScrips(Integer userId);
 
     // 查询指定id的纸条内容
